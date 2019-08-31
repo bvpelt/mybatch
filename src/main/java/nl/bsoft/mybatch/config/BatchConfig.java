@@ -11,8 +11,6 @@ import org.springframework.batch.core.configuration.annotation.DefaultBatchConfi
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -21,13 +19,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.interceptor.TransactionProxyFactoryBean;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
 @EnableBatchProcessing
@@ -48,9 +43,6 @@ public class BatchConfig extends DefaultBatchConfigurer {
 
     private PlatformTransactionManager transactionManager;
 
-    private DataSource getDataSource() {
-        return this.dataSource;
-    }
 
     @Autowired
     public BatchConfig(@Qualifier("postgres") DataSource dataSource,
@@ -60,50 +52,6 @@ public class BatchConfig extends DefaultBatchConfigurer {
         this.sessionFactory = sessionFactory;
         this.transactionManager = transactionManager;
     }
-
-
-    @Override
-    public HibernateTransactionManager getTransactionManager() {
-        HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-        transactionManager.setSessionFactory(this.sessionFactory);
-        transactionManager.setDataSource(this.dataSource);
-        return transactionManager;
-    }
-
-    @Override
-    protected JobRepository createJobRepository() throws Exception {
-        JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
-        factory.setDataSource(this.dataSource);
-        factory.setTransactionManager(this.transactionManager);
-        factory.setIsolationLevelForCreate("ISOLATION_SERIALIZABLE");
-        factory.setTablePrefix("BATCH_");
-        factory.setMaxVarCharLength(1000);
-        return factory.getObject();
-    }
-
-/*
-    @Bean
-    public TransactionProxyFactoryBean baseProxy() {
-        TransactionProxyFactoryBean transactionProxyFactoryBean = new TransactionProxyFactoryBean();
-        try {
-
-            Properties transactionAttributes = new Properties();
-            transactionAttributes.setProperty("*", "PROPAGATION_REQUIRED");
-            transactionProxyFactoryBean.setTransactionAttributes(transactionAttributes);
-            transactionProxyFactoryBean.setTarget(createJobRepository());
-            transactionProxyFactoryBean.setTransactionManager(transactionManager);
-        } catch (Exception e) {
-            logger.error("Cannot create TransactionProxy - error: {}", e);
-        }
-        return transactionProxyFactoryBean;
-    }
-*/
-    /*
-    @Bean
-    public Job job(@Qualifier("step1") Step step1, @Qualifier("step2") Step step2) {
-        return jobs.get("myJob").start(step1).next(step2).build();
-    }
-*/
 
     @Bean
     public Job job(@Qualifier("step1") Step step1) {
@@ -124,6 +72,5 @@ public class BatchConfig extends DefaultBatchConfigurer {
                 .writer(writer)
                 .build();
     }
-
 
 }

@@ -14,7 +14,7 @@ import java.util.List;
 public class GegevensWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter<BeschikkingsBevoegdheid> {
     private static final Logger logger = LoggerFactory.getLogger(GegevensWriter.class);
 
-    private SessionFactory sessionFactory;
+    private SessionFactory sessionFactory = null;
     private boolean autoCommit = true;
 
     @Autowired
@@ -29,6 +29,8 @@ public class GegevensWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter
             throw new MappingException("De sessionFactory moet toegewezen zijn voordat geschreven kan worden!");
         }
 
+        logger.debug("autoCommit set to: {}", autoCommit);
+
         if (autoCommit) {
             final Transaction tx = sessionFactory.getCurrentSession().beginTransaction();
             try {
@@ -36,6 +38,7 @@ public class GegevensWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter
                 tx.commit();
             } catch (final Exception e) {
                 tx.rollback();
+                logger.error("Error during writing, exception: {}", e);
                 throw new RuntimeException(e);
             }
         } else {
@@ -46,7 +49,10 @@ public class GegevensWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter
     @Autowired
     @Override
     public void setSessionFactory(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-        super.setSessionFactory(sessionFactory);
+        if (this.sessionFactory == null) {
+            logger.warn("No session factory defined, default sessionfactory used");
+            this.sessionFactory = sessionFactory;
+        }
+        super.setSessionFactory(this.sessionFactory);
     }
 }

@@ -99,9 +99,9 @@ public class DatabaseConfigPostgres {
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "none");
 
         hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-        hibernateProperties.setProperty("hibernate.transaction.coordinator_class", "jdbc");
-        hibernateProperties.setProperty("hibernate.show_sql", "false");
-        hibernateProperties.setProperty("hibernate.generate_statistics", "false");
+        //hibernateProperties.setProperty("hibernate.transaction.coordinator_class", "jdbc");
+        hibernateProperties.setProperty("hibernate.show_sql", "true");
+        hibernateProperties.setProperty("hibernate.generate_statistics", "true");
         return hibernateProperties;
     }
 
