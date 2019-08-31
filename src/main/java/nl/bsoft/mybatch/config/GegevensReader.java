@@ -7,18 +7,13 @@ import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 
 public class GegevensReader implements ItemReader<Gegeven> {
     private static final Logger logger = LoggerFactory.getLogger(GegevensReader.class);
 
-    @Autowired
-    private ResourceLoader resourceLoader;
+//    @Autowired
+//    private ResourceLoader resourceLoader;
 
     private FlatFileItemReader<Gegeven> itemReader;
 

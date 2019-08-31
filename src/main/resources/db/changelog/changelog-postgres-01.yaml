@@ -35,4 +35,4 @@ databaseChangeLog:
                   type: BIGINT
             indexName: CODE_IX
             tableName: BESCHIKKINGSBEVOEGDHEID
-            unique: true
+            unique: false

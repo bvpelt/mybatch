@@ -45,7 +45,6 @@ databaseChangeLog:
                   name: JOB_EXECUTION_ID
                   type: BIGINT
                   constraints:
-                    primaryKey: true
                     nullable: false
               - column:
                   name: TYPE_CD

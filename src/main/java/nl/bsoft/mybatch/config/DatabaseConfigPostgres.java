@@ -81,7 +81,6 @@ public class DatabaseConfigPostgres {
         factoryBean.setDataSource(dataSource());
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setJpaProperties(hibernateProperties());
-
         factoryBean.setPackagesToScan("nl.bsoft.mybatch.database");
         factoryBean.setPersistenceUnitName("postgres");
 
@@ -97,9 +96,7 @@ public class DatabaseConfigPostgres {
         final Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "none");
-
         hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-        //hibernateProperties.setProperty("hibernate.transaction.coordinator_class", "jdbc");
         hibernateProperties.setProperty("hibernate.show_sql", "true");
         hibernateProperties.setProperty("hibernate.generate_statistics", "true");
         return hibernateProperties;

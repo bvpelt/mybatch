@@ -29,7 +29,7 @@ public class GegevensWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter
             throw new MappingException("De sessionFactory moet toegewezen zijn voordat geschreven kan worden!");
         }
 
-        logger.debug("autoCommit set to: {}", autoCommit);
+        logger.info("autoCommit set to: {}", autoCommit);
 
         if (autoCommit) {
             final Transaction tx = sessionFactory.getCurrentSession().beginTransaction();
