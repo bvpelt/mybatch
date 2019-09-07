@@ -14,5 +14,8 @@ import util.OverrideActiveProfilesResolver;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ActiveProfiles(profiles = "dev", resolver = OverrideActiveProfilesResolver.class)
+
 public abstract class AbstractSpringTest {
 }
+
+

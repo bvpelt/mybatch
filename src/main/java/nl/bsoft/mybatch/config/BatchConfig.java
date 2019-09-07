@@ -18,7 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableBatchProcessing
@@ -32,21 +35,39 @@ public class BatchConfig extends DefaultBatchConfigurer {
     @Autowired
     private StepBuilderFactory stepBuilder;
 
-
     private final int DEFAULT_CHUNKSIZE = 10;
     private int chunkSize;
 
+    private final DataSource dataSource;
+    private final PlatformTransactionManager transactionManagerPg;
+    private final JobBuilderFactory jobBuilderFactory;
+    private final StepBuilderFactory stepBuilderFactory;
+
     @Autowired
-    public BatchConfig() {
-        chunkSize = DEFAULT_CHUNKSIZE;
+    public BatchConfig(@Qualifier("dataSource") final DataSource dataSource,
+                       @Qualifier("transactionManagerPg") final PlatformTransactionManager transactionManagerPg,
+                       final JobBuilderFactory jobBuilderFactory,
+                       final StepBuilderFactory stepBuilderFactory) {
+        super(dataSource);
+        logger.debug("Create BatchConfig - datasource: {}, transactionmanager: {}", dataSource.toString(), transactionManagerPg.toString());
+        this.dataSource = dataSource;
+        this.transactionManagerPg = transactionManagerPg;
+        this.jobBuilderFactory = jobBuilderFactory;
+        this.stepBuilderFactory = stepBuilderFactory;
+        this.chunkSize = DEFAULT_CHUNKSIZE;
     }
 
     public int getChunkSize() {
-        return chunkSize;
+        return this.chunkSize;
     }
 
     public void setChunkSize(int chunkSize) {
         this.chunkSize = chunkSize;
+    }
+
+    @Override
+    public PlatformTransactionManager getTransactionManager() {
+        return this.transactionManagerPg;
     }
 
     @Bean

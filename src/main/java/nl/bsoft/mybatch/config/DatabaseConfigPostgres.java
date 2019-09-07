@@ -24,13 +24,12 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories(
         entityManagerFactoryRef = "entityManagerFactoryPg",
-        transactionManagerRef = "transactionManagerPg",
-        basePackages = {"nl.bsoft.mybatch.database"}
+        transactionManagerRef = "transactionManagerPg"
 )
 public class DatabaseConfigPostgres {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseConfigPostgres.class);
 
-    @Bean(name = "postgres")
+    @Bean(name = "dataSource")
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.postgres")
     public DataSource dataSource() {
@@ -39,7 +38,6 @@ public class DatabaseConfigPostgres {
     }
 
     @Bean
-    @Primary
     @ConfigurationProperties(prefix = "datasource.postgres.liquibase")
     public LiquibaseProperties liquibaseProperties() {
 
@@ -47,7 +45,8 @@ public class DatabaseConfigPostgres {
     }
 
     @Bean("liquibase")
-    public SpringLiquibase liquibase(@Qualifier("postgres") final DataSource dataSource) {
+    @Primary
+    public SpringLiquibase liquibase(@Qualifier("dataSource") final DataSource dataSource) {
         return springLiquibase(dataSource, liquibaseProperties());
     }
 
@@ -81,7 +80,7 @@ public class DatabaseConfigPostgres {
         factoryBean.setDataSource(dataSource());
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setJpaProperties(hibernateProperties());
-        factoryBean.setPackagesToScan("nl.bsoft.mybatch.database");
+        factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.repo", "nl.bsoft.mybatch.database");
         factoryBean.setPersistenceUnitName("postgres");
 
         return factoryBean;

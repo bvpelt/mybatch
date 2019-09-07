@@ -1,4 +1,4 @@
-package nl.bsoft.mybatch.repository;
+package nl.bsoft.mybatch.config.repo;
 
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
 import org.springframework.data.repository.CrudRepository;
