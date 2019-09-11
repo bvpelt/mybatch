@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -70,8 +67,8 @@ public class BatchConfig extends DefaultBatchConfigurer {
         return this.transactionManagerPg;
     }
 
-    @Bean
-    public Job job(@Qualifier("step1") Step step1) {
+    @Bean(name = "fileToPostgresJob")
+    public Job fileToPostgresJob(@Qualifier("fileToPostgresStep") Step step1) {
 
         MyJobListener myJobListener = new MyJobListener();
 
@@ -82,8 +79,9 @@ public class BatchConfig extends DefaultBatchConfigurer {
                 .build();
     }
 
-    @Bean("step1")
-    protected Step step1(@Qualifier("gegevensReader") ItemReader<Gegeven> reader,
+    @Bean("fileToPostgresStep")
+    @StepScope
+    protected Step fileToPostgresStep(@Qualifier("gegevensReader") ItemReader<Gegeven> reader,
                          @Qualifier("gegevensProcessor") ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
                          @Qualifier("gegevensWriter") ItemWriter<BeschikkingsBevoegdheid> writer) {
         return stepBuilder.get("step1")

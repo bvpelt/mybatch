@@ -1,9 +1,14 @@
 package features;
 
-import cucumber.api.java.nl.Als;
-import cucumber.api.java.nl.Dan;
-import cucumber.api.java.nl.En;
-import cucumber.api.java.nl.Gegeven;
+//import cucumber.api.java.nl.Als;
+//import cucumber.api.java.nl.Dan;
+//import cucumber.api.java.nl.En;
+//import cucumber.api.java.nl.Gegeven;
+//import cucumber.api.java8.Nl;
+import io.cucumber.java.nl.Als;
+import io.cucumber.java.nl.Dan;
+import io.cucumber.java.nl.En;
+import io.cucumber.java.nl.Gegeven;
 import nl.bsoft.mybatch.config.GegevensReader;
 import nl.bsoft.mybatch.config.repo.BeschikkingsBevoegdheidRepo;
 import org.junit.Assert;
@@ -15,19 +20,14 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.repository.CrudRepository;
 import util.MyTestContext;
 
-public class MyTests extends AbstractSpringTest {
-    private static final Logger logger = LoggerFactory.getLogger(MyTests.class);
+public class MyTestGlue extends AbstractSpringTest /* implements Nl */  {
+    private static final Logger logger = LoggerFactory.getLogger(MyTestGlue.class);
 
     @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
     private BeschikkingsBevoegdheidRepo beschikkingsBevoegdheidRepo;
-
-    @Autowired
-    public MyTests() {
-
-    }
 
     private MyTestContext myTestContext = new MyTestContext();
 
@@ -69,6 +69,4 @@ public class MyTests extends AbstractSpringTest {
         logger.info("Aantal: {}", aantal);
         Assert.assertEquals(aantal, myTestContext.getAantal());
     }
-
-
 }

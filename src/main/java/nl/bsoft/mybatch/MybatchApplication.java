@@ -29,7 +29,7 @@ public class MybatchApplication extends SpringBootServletInitializer {
 	private static final Class<MybatchApplication> APP_CLASS = MybatchApplication.class;
 
 	public static void main(String[] args) {
-		SpringApplication.run(MybatchApplication.class, args);
+		SpringApplication.run(APP_CLASS, args);
 	}
 
 	@Override

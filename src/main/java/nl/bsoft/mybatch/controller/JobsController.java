@@ -17,14 +17,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @Controller
-public class JobLauncherController {
-    private static final Logger logger = LoggerFactory.getLogger(JobLauncherController.class);
+public class JobsController {
+    private static final Logger logger = LoggerFactory.getLogger(JobsController.class);
 
     @Autowired
     JobLauncher jobLauncher;
 
     @Autowired
-    Job job;
+    Job fileToPostgresJob;
 
     @GetMapping("/jobLauncher")
     public String handle(@RequestParam(value = "fileName", defaultValue = "") String fileName) throws Exception {
@@ -36,14 +36,13 @@ public class JobLauncherController {
 
         logger.info("Start job with parameters fileName: {}, startTime: {}", fileName, date.format(dateTimeFormatter));
 
-
         JobParameters parameters = new JobParametersBuilder()
                 .addLong("startTime", System.currentTimeMillis())
                 .addString("filename", fileName)
                 .toJobParameters();
 
         try {
-            jobLauncher.run(job, parameters);
+            jobLauncher.run(fileToPostgresJob, parameters);
         } catch (Exception e) {
             result = "error";
         }

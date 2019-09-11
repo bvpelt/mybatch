@@ -12,9 +12,6 @@ import org.springframework.core.io.FileSystemResource;
 public class GegevensReader implements ItemReader<Gegeven> {
     private static final Logger logger = LoggerFactory.getLogger(GegevensReader.class);
 
-//    @Autowired
-//    private ResourceLoader resourceLoader;
-
     private FlatFileItemReader<Gegeven> itemReader;
 
     public GegevensReader() {
@@ -33,6 +30,7 @@ public class GegevensReader implements ItemReader<Gegeven> {
     public FlatFileItemReader<Gegeven> getItemReader() {
         FlatFileItemReader<Gegeven> itemReader = new FlatFileItemReader<Gegeven>();
         itemReader.setLinesToSkip(1);
+//        itemReader.setResource(new FileSystemResource("src/main/resources/#{jobParameters['filename']}"));
         itemReader.setResource(new FileSystemResource("src/main/resources/Beschikkingsbevoegdheid.csv")); //DelimitedLineTokenizer defaults to comma as its delimiter
         DefaultLineMapper<Gegeven> lineMapper = new DefaultLineMapper<Gegeven>();
         lineMapper.setLineTokenizer(new DelimitedLineTokenizer());
