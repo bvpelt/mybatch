@@ -80,10 +80,9 @@ public class BatchConfig extends DefaultBatchConfigurer {
     }
 
     @Bean("fileToPostgresStep")
-    @StepScope
     protected Step fileToPostgresStep(@Qualifier("gegevensReader") ItemReader<Gegeven> reader,
-                         @Qualifier("gegevensProcessor") ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
-                         @Qualifier("gegevensWriter") ItemWriter<BeschikkingsBevoegdheid> writer) {
+                                      @Qualifier("gegevensProcessor") ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
+                                      @Qualifier("gegevensWriter") ItemWriter<BeschikkingsBevoegdheid> writer) {
         return stepBuilder.get("step1")
                 .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
                 .reader(reader)
@@ -92,4 +91,27 @@ public class BatchConfig extends DefaultBatchConfigurer {
                 .build();
     }
 
+    @Bean(name = "postgres2H2Job")
+    public Job postgres2H2Job(@Qualifier("postgres2H2Step") Step step1) {
+
+        MyJobListener myJobListener = new MyJobListener();
+
+        return jobBuilder.get("myJob")
+                .listener(myJobListener)
+                .incrementer(new RunIdIncrementer())
+                .start(step1)
+                .build();
+    }
+
+    @Bean("postgres2H2Step")
+    protected Step postgres2H2Step(@Qualifier("gegevensReader") ItemReader<Gegeven> reader,
+                                   @Qualifier("gegevensProcessor") ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
+                                   @Qualifier("gegevensWriter") ItemWriter<BeschikkingsBevoegdheid> writer) {
+        return stepBuilder.get("step1")
+                .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
+                .reader(reader)
+                .processor(processor)
+                .writer(writer)
+                .build();
+    }
 }

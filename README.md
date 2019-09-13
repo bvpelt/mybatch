@@ -19,3 +19,10 @@ Default wordt gebruik gemaakt van:
 # Testen
 - https://testingneeds.wordpress.com/tag/cucumberoptions/
 
+# Coverage
+jacco reports and maven
+- https://stackoverflow.com/questions/21048776/maven-site-plugin-does-not-include-jacoco-reports
+- https://www.petrikainulainen.net/programming/maven/creating-code-coverage-reports-for-unit-and-integration-tests-with-the-jacoco-maven-plugin/
+
+# Maven
+- https://maven.apache.org/pom.html 
