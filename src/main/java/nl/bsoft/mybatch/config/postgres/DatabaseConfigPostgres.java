@@ -1,6 +1,7 @@
-package nl.bsoft.mybatch.config;
+package nl.bsoft.mybatch.config.postgres;
 
 import liquibase.integration.spring.SpringLiquibase;
+import nl.bsoft.mybatch.config.DatabaseConfig;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ import java.util.Properties;
         entityManagerFactoryRef = "entityManagerFactoryPg",
         transactionManagerRef = "transactionManagerPg"
 )
-public class DatabaseConfigPostgres {
+public class DatabaseConfigPostgres extends DatabaseConfig {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseConfigPostgres.class);
 
     @Bean(name = "dataSource")
@@ -50,20 +51,6 @@ public class DatabaseConfigPostgres {
         return springLiquibase(dataSource, liquibaseProperties());
     }
 
-    private SpringLiquibase springLiquibase(DataSource dataSource, LiquibaseProperties properties) {
-        SpringLiquibase liquibase = new SpringLiquibase();
-        liquibase.setDataSource(dataSource);
-        liquibase.setChangeLog(properties.getChangeLog());
-        liquibase.setContexts(properties.getContexts());
-        liquibase.setDefaultSchema(properties.getDefaultSchema());
-        liquibase.setDropFirst(properties.isDropFirst());
-        liquibase.setShouldRun(properties.isEnabled());
-        liquibase.setLabels(properties.getLabels());
-        liquibase.setChangeLogParameters(properties.getParameters());
-        liquibase.setRollbackFile(properties.getRollbackFile());
-        return liquibase;
-    }
-
     @Bean(name = "transactionManagerPg")
     @Primary
     public PlatformTransactionManager transactionManagerPg() {
@@ -80,7 +67,7 @@ public class DatabaseConfigPostgres {
         factoryBean.setDataSource(dataSource());
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setJpaProperties(hibernateProperties());
-        factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.repo", "nl.bsoft.mybatch.database");
+        factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.postgres.repo", "nl.bsoft.mybatch.database");
         factoryBean.setPersistenceUnitName("postgres");
 
         return factoryBean;

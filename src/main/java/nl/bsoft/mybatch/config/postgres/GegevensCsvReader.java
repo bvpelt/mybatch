@@ -1,4 +1,4 @@
-package nl.bsoft.mybatch.config;
+package nl.bsoft.mybatch.config.postgres;
 
 import nl.bsoft.mybatch.csv.Gegeven;
 import org.slf4j.Logger;
@@ -9,12 +9,12 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.core.io.FileSystemResource;
 
-public class GegevensReader implements ItemReader<Gegeven> {
-    private static final Logger logger = LoggerFactory.getLogger(GegevensReader.class);
+public class GegevensCsvReader implements ItemReader<Gegeven> {
+    private static final Logger logger = LoggerFactory.getLogger(GegevensCsvReader.class);
 
     private FlatFileItemReader<Gegeven> itemReader;
 
-    public GegevensReader() {
+    public GegevensCsvReader() {
         itemReader = getItemReader();
     }
 
@@ -34,7 +34,7 @@ public class GegevensReader implements ItemReader<Gegeven> {
         itemReader.setResource(new FileSystemResource("src/main/resources/Beschikkingsbevoegdheid.csv")); //DelimitedLineTokenizer defaults to comma as its delimiter
         DefaultLineMapper<Gegeven> lineMapper = new DefaultLineMapper<Gegeven>();
         lineMapper.setLineTokenizer(new DelimitedLineTokenizer());
-        lineMapper.setFieldSetMapper(new GegevensFieldSetMapper());
+        lineMapper.setFieldSetMapper(new GegevensCsvFieldSetMapper());
         itemReader.setLineMapper(lineMapper);
         itemReader.open(new ExecutionContext());
 

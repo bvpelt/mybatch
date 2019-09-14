@@ -9,6 +9,7 @@ Functionaliteit: Lees uit csv files
     En inputbestand "Beschikkingsbevoegdheid.csv" bestaat op classpath
     Als de gegevens gelezen zijn
     Dan zijn er 9 gegevens gelezen
+    Dan zijn er 0 gegevens vastgelegd
 
   Scenario: Voer verwerking uit
     Gegeven database is geinitialiseerd

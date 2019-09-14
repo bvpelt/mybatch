@@ -5,8 +5,8 @@ import cucumber.api.java.nl.Dan;
 import cucumber.api.java.nl.En;
 import cucumber.api.java.nl.Gegeven;
 import cucumber.api.java8.Nl;
-import nl.bsoft.mybatch.config.GegevensReader;
-import nl.bsoft.mybatch.config.repo.BeschikkingsBevoegdheidRepo;
+import nl.bsoft.mybatch.config.postgres.GegevensCsvReader;
+import nl.bsoft.mybatch.config.postgres.repo.BeschikkingsBevoegdheidRepo;
 import nl.bsoft.mybatch.controller.JobsController;
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -57,13 +57,13 @@ public class MyTestGlue extends AbstractSpringTest  implements Nl {
 
     @Als("^de gegevens gelezen zijn$")
     public void readTheData() {
-        GegevensReader gegevensReader = new GegevensReader();
+        GegevensCsvReader gegevensCsvReader = new GegevensCsvReader();
         long aantal = 0;
         try {
-            nl.bsoft.mybatch.csv.Gegeven gegeven = gegevensReader.read();
+            nl.bsoft.mybatch.csv.Gegeven gegeven = gegevensCsvReader.read();
             while (gegeven != null) {
                 aantal++;
-                gegeven = gegevensReader.read();
+                gegeven = gegevensCsvReader.read();
             }
         } catch (Exception e) {
 

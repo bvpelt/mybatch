@@ -1,4 +1,4 @@
-package nl.bsoft.mybatch.config;
+package nl.bsoft.mybatch.config.postgres;
 
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;

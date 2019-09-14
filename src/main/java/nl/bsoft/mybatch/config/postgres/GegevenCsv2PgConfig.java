@@ -1,4 +1,4 @@
-package nl.bsoft.mybatch.config;
+package nl.bsoft.mybatch.config.postgres;
 
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
@@ -11,20 +11,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class GegevenConfig {
-    private static final Logger logger = LoggerFactory.getLogger(GegevenConfig.class);
+public class GegevenCsv2PgConfig {
+    private static final Logger logger = LoggerFactory.getLogger(GegevenCsv2PgConfig.class);
 
     @Bean("gegevensReader")
     public ItemReader<Gegeven> gegevensReader() {
-        ItemReader<Gegeven> gegevenItemReader = new GegevensReader();
+        ItemReader<Gegeven> gegevenItemReader = new GegevensCsvReader();
         return gegevenItemReader;
     }
 
     @Bean("gegevensWriter")
     public ItemWriter<BeschikkingsBevoegdheid> getGegevensWriter(@Qualifier("sfPostgres") SessionFactory sessionFactory) {
-        GegevensWriter gegevensWriter = new GegevensWriter(sessionFactory);
+        GegevensPgWriter gegevensPgWriter = new GegevensPgWriter(sessionFactory);
 
-        return gegevensWriter;
+        return gegevensPgWriter;
     }
 
     @Bean("gegevensProcessor")

@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 100
+      author: bart
+      changes:
+        - createTable:
+            tableName: BESCHIKKINGSBEVOEGDHEIDH2
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: CODE
+                  type: INT
+              - column:
+                  name: WAARDE
+                  type: varchar(128)
+              - column:
+                  name: DATUMVANAF
+                  type: DATE
+              - column:
+                  name: DATUMTOT
+                  type: DATE
+              - column:
+                  name: TOELICHTING
+                  type: varchar(128)
+              - column:
+                  name: PROCESSTATUS
+                  type: varchar(32)
+        - createIndex:
+            columns:
+              - column:
+                  name: CODE
+                  type: BIGINT
+            indexName: CODE_IX
+            tableName: BESCHIKKINGSBEVOEGDHEIDH2
+            unique: false

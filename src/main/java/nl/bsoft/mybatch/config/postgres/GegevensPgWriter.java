@@ -1,4 +1,4 @@
-package nl.bsoft.mybatch.config;
+package nl.bsoft.mybatch.config.postgres;
 
 import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
@@ -11,14 +11,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.List;
 
-public class GegevensWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter<BeschikkingsBevoegdheid> {
-    private static final Logger logger = LoggerFactory.getLogger(GegevensWriter.class);
+public class GegevensPgWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter<BeschikkingsBevoegdheid> {
+    private static final Logger logger = LoggerFactory.getLogger(GegevensPgWriter.class);
 
     private SessionFactory sessionFactory = null;
     private boolean autoCommit = true;
 
     @Autowired
-    public GegevensWriter(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
+    public GegevensPgWriter(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 

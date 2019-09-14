@@ -1,3 +1,15 @@
+# Building
+Make sure you meet the [Prerequisits](##Prerequisits)
+
+For building the complete project execute the following command:
+```bash
+mvn clean package site
+```
+It will generate the package and the site information.
+## Prerequisits
+In order to use this project you need to have
+- postgres 10 installed and running with database mybatch and user testuser with password 12345
+
 
 # Database config
 See http://www.javaoptimum.com/how-to-configure-multiple-datasources-with-spring-boot/
@@ -26,3 +38,4 @@ jacco reports and maven
 
 # Maven
 - https://maven.apache.org/pom.html 
+- life cycle https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
