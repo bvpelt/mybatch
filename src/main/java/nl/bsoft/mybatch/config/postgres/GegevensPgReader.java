@@ -9,6 +9,7 @@ import org.springframework.batch.item.database.HibernateCursorItemReader;
 import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
@@ -21,11 +22,13 @@ public class GegevensPgReader<BeschikkingsBevoegdheid> extends HibernateCursorIt
 
     public GegevensPgReader(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
         setSessionFactory(sessionFactory);
+        setQueryString("from BeschikkingsBevoegdheid");
+        setUseStatelessSession(true);
     }
 
+    @Bean(name = "pgItemReader")
     public HibernateCursorItemReader<BeschikkingsBevoegdheid> pgItemReader() {
-        this.setQueryString("from BeschikkingsBevoegdheidH2");
-        this.setUseStatelessSession(true);
+
 
         return this;
     }

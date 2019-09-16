@@ -34,18 +34,16 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.postgres")
     public DataSource dataSource() {
-
         return DataSourceBuilder.create().build();
     }
 
-    @Bean
+    @Bean(name = "liquibaseProperties")
     @ConfigurationProperties(prefix = "datasource.postgres.liquibase")
     public LiquibaseProperties liquibaseProperties() {
-
         return new LiquibaseProperties();
     }
 
-    @Bean("liquibase")
+    @Bean(name = "liquibase")
     @Primary
     public SpringLiquibase liquibase(@Qualifier("dataSource") final DataSource dataSource) {
         return springLiquibase(dataSource, liquibaseProperties());

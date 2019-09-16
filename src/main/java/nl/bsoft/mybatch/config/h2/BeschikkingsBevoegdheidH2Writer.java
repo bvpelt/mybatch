@@ -1,5 +1,7 @@
-package nl.bsoft.mybatch.config.postgres;
+package nl.bsoft.mybatch.config.h2;
 
+import nl.bsoft.mybatch.config.postgres.GegevensPgWriter;
+import nl.bsoft.mybatch.database.BeschikkingsBevoegdheidH2;
 import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -8,25 +10,31 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
 @Configuration
-public class GegevensPgWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter<BeschikkingsBevoegdheid> {
-    private static final Logger logger = LoggerFactory.getLogger(GegevensPgWriter.class);
+public class BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> extends HibernateItemWriter<BeschikkingsBevoegdheidH2> {
+    private static final Logger logger = LoggerFactory.getLogger(BeschikkingsBevoegdheidH2Writer.class);
 
     private SessionFactory sessionFactory = null;
     private boolean autoCommit = true;
 
     @Autowired
-    public GegevensPgWriter(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
-        setSessionFactory(sessionFactory);
+    public BeschikkingsBevoegdheidH2Writer(@Qualifier("sfH2") final SessionFactory sessionFactory) {
+        super.setSessionFactory(sessionFactory);
         this.sessionFactory = sessionFactory;
     }
 
+    @Bean("beschikkingsBevoegheidH2Writer")
+    public HibernateItemWriter<BeschikkingsBevoegdheidH2> getBeschikkingsBevoegheidH2Writer() {
+        return this;
+    }
+
     @Override
-    public void write(final List<? extends BeschikkingsBevoegdheid> items) {
+    public void write(final List<? extends BeschikkingsBevoegdheidH2> items) {
 
         if (sessionFactory == null) {
             throw new MappingException("De sessionFactory moet toegewezen zijn voordat geschreven kan worden!");
@@ -59,5 +67,6 @@ public class GegevensPgWriter<BeschikkingsBevoegdheid> extends HibernateItemWrit
         }
         super.setSessionFactory(this.sessionFactory);
     }
+
      */
 }

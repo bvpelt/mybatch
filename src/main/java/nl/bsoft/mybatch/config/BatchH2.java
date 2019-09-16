@@ -1,7 +1,11 @@
 package nl.bsoft.mybatch.config;
 
+import nl.bsoft.mybatch.config.h2.BeschikkingsBevoegdheidH2Writer;
+import nl.bsoft.mybatch.config.h2.BeschikkingsBevoegdheidProcessor;
+import nl.bsoft.mybatch.config.postgres.GegevensPgReader;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
+import nl.bsoft.mybatch.database.BeschikkingsBevoegdheidH2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -12,14 +16,16 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.HibernateCursorItemReader;
+import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class BatchPg {
-    private static final Logger logger = LoggerFactory.getLogger(BatchPg.class);
+public class BatchH2 {
+    private static final Logger logger = LoggerFactory.getLogger(BatchH2.class);
 
     private final int DEFAULT_CHUNKSIZE = 10;
     private int chunkSize;
@@ -30,7 +36,7 @@ public class BatchPg {
     @Autowired
     private StepBuilderFactory stepBuilder;
 
-    public BatchPg(final JobBuilderFactory jobBuilderFactory,
+    public BatchH2(final JobBuilderFactory jobBuilderFactory,
                    final StepBuilderFactory stepBuilderFactory) {
         this.jobBuilder = jobBuilderFactory;
         this.stepBuilder = stepBuilderFactory;
@@ -45,29 +51,28 @@ public class BatchPg {
         this.chunkSize = chunkSize;
     }
 
-    @Bean(name = "fileToPostgresJob")
-    public Job fileToPostgresJob(@Qualifier("fileToPostgresStep") Step fileToPostgresStep) {
+
+    @Bean(name = "postgres2H2Job")
+    public Job postgres2H2Job(@Qualifier("postgres2H2Step") Step postgres2H2Step) {
 
         MyJobListener myJobListener = new MyJobListener();
 
-        return jobBuilder.get("fileToPostgresJob")
+        return jobBuilder.get("postgres2H2Job")
                 .listener(myJobListener)
                 .incrementer(new RunIdIncrementer())
-                .start(fileToPostgresStep)
+                .start(postgres2H2Step)
                 .build();
     }
 
-    @Bean("fileToPostgresStep")
-    protected Step fileToPostgresStep(@Qualifier("gegevensReader") ItemReader<Gegeven> reader,
-                                      @Qualifier("gegevensProcessor") ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
-                                      @Qualifier("gegevensWriter") ItemWriter<BeschikkingsBevoegdheid> writer) {
-        return stepBuilder.get("fileToPostgresStep")
-                .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
+    @Bean(name = "postgres2H2Step")
+    protected Step postgres2H2Step(GegevensPgReader<BeschikkingsBevoegdheid> reader,
+                                   BeschikkingsBevoegdheidProcessor processor,
+                                   BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> writer) {
+        return stepBuilder.get("postgres2H2Step")
+                .<BeschikkingsBevoegdheid, BeschikkingsBevoegdheidH2>chunk(chunkSize)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
                 .build();
     }
-
-
 }

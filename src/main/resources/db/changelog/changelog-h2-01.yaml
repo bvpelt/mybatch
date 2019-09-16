@@ -39,3 +39,20 @@ databaseChangeLog:
             indexName: CODE_IX
             tableName: BESCHIKKINGSBEVOEGDHEIDH2
             unique: false
+        - createTable:
+            tableName: VANPGNAARH2
+            columns:
+              - column:
+                  name: ID
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: DATUMSTARTED
+                  type: DATE
+              - column:
+                  name: LASTID
+                  type: BIGINT
+

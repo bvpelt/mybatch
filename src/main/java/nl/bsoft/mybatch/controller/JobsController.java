@@ -26,7 +26,11 @@ public class JobsController {
     @Autowired
     Job fileToPostgresJob;
 
-    @GetMapping("/jobLauncher")
+    @Autowired
+    Job postgres2H2Job;
+
+
+    @GetMapping("/csvtopostgres")
     public String handle(@RequestParam(value = "fileName", defaultValue = "") String fileName) throws Exception {
 
         String result = "ready";
@@ -43,6 +47,22 @@ public class JobsController {
 
         try {
             jobLauncher.run(fileToPostgresJob, parameters);
+        } catch (Exception e) {
+            result = "error";
+        }
+        return result;
+    }
+
+    @GetMapping("/postgrestoh2")
+    public String handle() throws Exception {
+
+        String result = "ready";
+
+        JobParameters parameters = new JobParametersBuilder()
+                .toJobParameters();
+
+        try {
+            jobLauncher.run(postgres2H2Job, parameters);
         } catch (Exception e) {
             result = "error";
         }

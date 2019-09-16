@@ -37,15 +37,14 @@ public class DatabaseConfigH2 extends DatabaseConfig {
         return DataSourceBuilder.create().build();
     }
 
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.h2.liquibase")
+    @Bean(name = "liquibasePropertiesH2")
+    @ConfigurationProperties(prefix = "datasource.h2.h2liquibase")
     public LiquibaseProperties liquibasePropertiesH2() {
 
         return new LiquibaseProperties();
     }
 
-    @Bean("liquibaseH2")
-    @Primary
+    @Bean(name = "liquibaseH2")
     public SpringLiquibase liquibaseH2(@Qualifier("dataSourceH2") final DataSource dataSource) {
         return springLiquibase(dataSource, liquibasePropertiesH2());
     }
@@ -77,7 +76,7 @@ public class DatabaseConfigH2 extends DatabaseConfig {
 
     private Properties hibernateProperties() {
         final Properties hibernateProperties = new Properties();
-        hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "none");
         hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
         hibernateProperties.setProperty("hibernate.show_sql", "true");

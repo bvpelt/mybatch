@@ -14,20 +14,20 @@ import org.springframework.context.annotation.Configuration;
 public class GegevenCsv2PgConfig {
     private static final Logger logger = LoggerFactory.getLogger(GegevenCsv2PgConfig.class);
 
-    @Bean("gegevensReader")
+    @Bean(name = "gegevensReader")
     public ItemReader<Gegeven> gegevensReader() {
         ItemReader<Gegeven> gegevenItemReader = new GegevensCsvReader();
         return gegevenItemReader;
     }
 
-    @Bean("gegevensWriter")
+    @Bean(name = "gegevensWriter")
     public ItemWriter<BeschikkingsBevoegdheid> getGegevensWriter(@Qualifier("sfPostgres") SessionFactory sessionFactory) {
         GegevensPgWriter gegevensPgWriter = new GegevensPgWriter(sessionFactory);
 
         return gegevensPgWriter;
     }
 
-    @Bean("gegevensProcessor")
+    @Bean(name = "gegevensProcessor")
     public ItemProcessor<Gegeven, BeschikkingsBevoegdheid> getGegevensProcessor() {
 
         return new GegevensProcessor();
