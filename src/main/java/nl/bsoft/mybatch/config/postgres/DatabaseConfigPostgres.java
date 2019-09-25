@@ -34,6 +34,7 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.postgres")
     public DataSource dataSource() {
+        logger.debug("Get primary datasource");
         return DataSourceBuilder.create().build();
     }
 
@@ -52,6 +53,7 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
     @Bean(name = "transactionManagerPg")
     @Primary
     public PlatformTransactionManager transactionManagerPg() {
+        logger.debug("Get primary transactionManager");
         return new JpaTransactionManager(entityManagerFactoryPg().getObject());
     }
 

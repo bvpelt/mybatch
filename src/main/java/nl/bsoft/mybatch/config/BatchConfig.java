@@ -46,7 +46,9 @@ public class BatchConfig extends DefaultBatchConfigurer {
 
     @Override
     public PlatformTransactionManager getTransactionManager() {
+        logger.debug("Get transaction manager");
         return this.transactionManagerPg;
     }
+
 
 }

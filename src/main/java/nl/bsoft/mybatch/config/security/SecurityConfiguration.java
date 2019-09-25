@@ -1,4 +1,4 @@
-package nl.bsoft.mybatch.security.configuration;
+package nl.bsoft.mybatch.config.security;
 
 
 import org.slf4j.Logger;
