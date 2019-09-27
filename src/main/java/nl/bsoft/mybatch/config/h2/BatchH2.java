@@ -1,9 +1,7 @@
-package nl.bsoft.mybatch.config;
+package nl.bsoft.mybatch.config.h2;
 
-import nl.bsoft.mybatch.config.h2.BeschikkingsBevoegdheidH2Writer;
-import nl.bsoft.mybatch.config.h2.BeschikkingsBevoegdheidProcessor;
+import nl.bsoft.mybatch.config.MyJobListener;
 import nl.bsoft.mybatch.config.postgres.GegevensPgReader;
-import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheidH2;
 import org.slf4j.Logger;
@@ -13,11 +11,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.HibernateCursorItemReader;
-import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -61,6 +54,20 @@ public class BatchH2 {
                 .listener(myJobListener)
                 .incrementer(new RunIdIncrementer())
                 .start(postgres2H2Step)
+                .build();
+    }
+
+    @Bean(name = "file2H2Job")
+    public Job file2H2Job(@Qualifier("fileToPostgresStep") Step fileToPostgresStep,
+                          @Qualifier("postgres2H2Step") Step postgres2H2Step) {
+
+        MyJobListener myJobListener = new MyJobListener();
+
+        return jobBuilder.get("file2H2Job")
+                .listener(myJobListener)
+                .incrementer(new RunIdIncrementer())
+                .start(fileToPostgresStep)
+                .next(postgres2H2Step)
                 .build();
     }
 

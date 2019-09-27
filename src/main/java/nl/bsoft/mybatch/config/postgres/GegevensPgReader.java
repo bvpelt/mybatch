@@ -19,8 +19,11 @@ public class GegevensPgReader<BeschikkingsBevoegdheid> extends HibernateCursorIt
     private static final Logger logger = LoggerFactory.getLogger(GegevensPgReader.class);
 
     private boolean autoCommit = true;
+    private final SessionFactory sessionFactory;
 
     public GegevensPgReader(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
+        logger.debug("Created GegevensPgReader");
+        this.sessionFactory = sessionFactory;
         setSessionFactory(sessionFactory);
         setQueryString("from BeschikkingsBevoegdheid");
         setUseStatelessSession(true);
@@ -28,7 +31,7 @@ public class GegevensPgReader<BeschikkingsBevoegdheid> extends HibernateCursorIt
 
     @Bean(name = "pgItemReader")
     public HibernateCursorItemReader<BeschikkingsBevoegdheid> pgItemReader() {
-
+        logger.debug("Created pgItemReader");
 
         return this;
     }

@@ -6,8 +6,13 @@ import org.springframework.batch.core.configuration.annotation.DefaultBatchConfi
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -50,5 +55,27 @@ public class BatchConfig extends DefaultBatchConfigurer {
         return this.transactionManagerPg;
     }
 
+    @Override
+    protected JobRepository createJobRepository() throws Exception {
+        JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
+        factory.setDataSource(dataSource);
+        factory.setTransactionManager(this.transactionManagerPg);
+        factory.setIsolationLevelForCreate("ISOLATION_SERIALIZABLE");
+        factory.setTablePrefix("BATCH_");
+        factory.setMaxVarCharLength(2500);
+        return factory.getObject();
+    }
 
+    @Override
+    public JobExplorer getJobExplorer() {
+        JobExplorerFactoryBean factoryBean = new JobExplorerFactoryBean();
+        factoryBean.setDataSource(this.dataSource);
+        JobExplorer jobExplorer = null;
+        try {
+            jobExplorer = factoryBean.getObject();
+        } catch (Exception e) {
+           logger.error("Couldnot find job explorer");
+        }
+        return jobExplorer;
+    }
 }

@@ -1,5 +1,6 @@
 package nl.bsoft.mybatch.controller;
 
+import nl.bsoft.mybatch.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -29,9 +30,57 @@ public class JobsController {
     @Autowired
     Job postgres2H2Job;
 
+    @Autowired
+    Job file2H2Job;
 
     @GetMapping("/csvtopostgres")
-    public String handle(@RequestParam(value = "fileName", defaultValue = "") String fileName) throws Exception {
+    public String csvtopostgres(@RequestParam(value = "fileName") String fileName) throws Exception {
+        logger.debug("Start csvtopostgres with filename: {}", fileName);
+
+        if ((fileName == null) ||
+                (fileName.length() == 0)) {
+            throw new Exception("fileName parameter expected but not present");
+        }
+
+        String result = "ready";
+        long now = System.currentTimeMillis();
+        LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss.SSS");
+
+        logger.info("Start job with parameters fileName: {}, startTime: {}", fileName, date.format(dateTimeFormatter));
+
+        JobParameters parameters = new JobParametersBuilder()
+                .addString("filename", fileName)
+                .addDate("startdate", DateUtils.asDate(date))
+                .toJobParameters();
+
+        try {
+            jobLauncher.run(fileToPostgresJob, parameters);
+        } catch (Exception e) {
+            result = "error";
+        }
+        return result;
+    }
+
+    @GetMapping("/postgrestoh2")
+    public String postgrestoh2() throws Exception {
+
+        String result = "ready";
+
+        JobParameters parameters = new JobParametersBuilder()
+                .addString("key", "empty")
+                .toJobParameters();
+
+        try {
+            jobLauncher.run(postgres2H2Job, parameters);
+        } catch (Exception e) {
+            result = "error";
+        }
+        return result;
+    }
+
+    @GetMapping("/csvtoh2")
+    public String csvtoh2(@RequestParam(value = "fileName", defaultValue = "") String fileName) throws Exception {
 
         String result = "ready";
         long now = System.currentTimeMillis();
@@ -46,28 +95,13 @@ public class JobsController {
                 .toJobParameters();
 
         try {
-            jobLauncher.run(fileToPostgresJob, parameters);
+            jobLauncher.run(file2H2Job, parameters);
         } catch (Exception e) {
             result = "error";
         }
         return result;
     }
 
-    @GetMapping("/postgrestoh2")
-    public String handle() throws Exception {
-
-        String result = "ready";
-
-        JobParameters parameters = new JobParametersBuilder()
-                .toJobParameters();
-
-        try {
-            jobLauncher.run(postgres2H2Job, parameters);
-        } catch (Exception e) {
-            result = "error";
-        }
-        return result;
-    }
 
     @GetMapping("/ready")
     public String handleReady() throws Exception {

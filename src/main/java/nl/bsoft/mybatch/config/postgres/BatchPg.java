@@ -1,5 +1,6 @@
-package nl.bsoft.mybatch.config;
+package nl.bsoft.mybatch.config.postgres;
 
+import nl.bsoft.mybatch.config.MyJobListener;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -58,6 +60,7 @@ public class BatchPg {
     }
 
     @Bean("fileToPostgresStep")
+//    @StepScope
     protected Step fileToPostgresStep(@Qualifier("gegevensReader") ItemReader<Gegeven> reader,
                                       @Qualifier("gegevensProcessor") ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
                                       @Qualifier("gegevensWriter") ItemWriter<BeschikkingsBevoegdheid> writer) {

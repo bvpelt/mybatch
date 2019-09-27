@@ -28,10 +28,11 @@ public class GegevensCsvReader implements ItemReader<Gegeven> {
     }
 
     public FlatFileItemReader<Gegeven> getItemReader() {
+        final String fileName = "BRPLand.csv";
         FlatFileItemReader<Gegeven> itemReader = new FlatFileItemReader<Gegeven>();
         itemReader.setLinesToSkip(1);
 //        itemReader.setResource(new FileSystemResource("src/main/resources/#{jobParameters['filename']}"));
-        itemReader.setResource(new FileSystemResource("src/main/resources/Beschikkingsbevoegdheid.csv")); //DelimitedLineTokenizer defaults to comma as its delimiter
+        itemReader.setResource(new FileSystemResource("src/main/resources/" + fileName)); //DelimitedLineTokenizer defaults to comma as its delimiter
         DefaultLineMapper<Gegeven> lineMapper = new DefaultLineMapper<Gegeven>();
         lineMapper.setLineTokenizer(new DelimitedLineTokenizer());
         lineMapper.setFieldSetMapper(new GegevensCsvFieldSetMapper());
