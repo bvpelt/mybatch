@@ -10,8 +10,11 @@ import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,10 +29,12 @@ public class GegevenCsv2PgConfig {
     private String fileName;
     private Date startDate;
 
+    private JobParameters jobParameters;
+
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
         this.jobExecution = stepExecution.getJobExecution();
-        JobParameters jobParameters = jobExecution.getJobParameters();
+        this.jobParameters = jobExecution.getJobParameters();
         this.fileName = jobParameters.getString("filename");
         this.startDate = jobParameters.getDate("startdate");
         logger.error("Received parameters - filename: {}, startdate: {}", this.fileName, this.startDate.toString());

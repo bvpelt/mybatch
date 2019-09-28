@@ -39,3 +39,8 @@ jacco reports and maven
 # Maven
 - https://maven.apache.org/pom.html 
 - life cycle https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
+
+
+
+###
+- https://stackoverflow.com/questions/6078009/how-to-get-access-to-job-parameters-from-itemreader-in-spring-batch
