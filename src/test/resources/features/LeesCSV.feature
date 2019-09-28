@@ -7,11 +7,10 @@ Functionaliteit: Lees uit csv files
   Scenario: Lees aantal entries uit uit csv file
     Gegeven database is geinitialiseerd
     En inputbestand "Beschikkingsbevoegdheid.csv" bestaat op classpath
-    Als de gegevens gelezen zijn
-    Dan zijn er 9 gegevens gelezen
-    Dan zijn er 0 gegevens vastgelegd
+    Als de gegevens gelezen zijn uit bestand "Beschikkingsbevoegdheid.csv"
+    Dan zijn er 9 gegevens vastgelegd
 
   Scenario: Voer verwerking uit
     Gegeven database is geinitialiseerd
-    Als jobLauncher met success gedraaid heeft
+    Als job "csvtopostgres" met success gedraaid heeft voor bestand "Beschikkingsbevoegdheid.csv"
     Dan zijn er 9 gegevens vastgelegd
