@@ -2,7 +2,6 @@ package nl.bsoft.mybatch.database;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity(name = "BeschikkingsBevoegdheid")
 @Table(name = "BESCHIKKINGSBEVOEGDHEID")

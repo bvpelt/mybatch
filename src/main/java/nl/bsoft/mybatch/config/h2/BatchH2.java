@@ -29,10 +29,7 @@ public class BatchH2 {
     @Autowired
     private StepBuilderFactory stepBuilder;
 
-    public BatchH2(final JobBuilderFactory jobBuilderFactory,
-                   final StepBuilderFactory stepBuilderFactory) {
-        this.jobBuilder = jobBuilderFactory;
-        this.stepBuilder = stepBuilderFactory;
+    public BatchH2() {
         this.chunkSize = DEFAULT_CHUNKSIZE;
     }
 
@@ -44,8 +41,7 @@ public class BatchH2 {
         this.chunkSize = chunkSize;
     }
 
-
-    @Bean(name = "postgres2H2Job")
+    @Bean
     public Job postgres2H2Job(@Qualifier("postgres2H2Step") Step postgres2H2Step) {
 
         MyJobListener myJobListener = new MyJobListener();
@@ -57,7 +53,7 @@ public class BatchH2 {
                 .build();
     }
 
-    @Bean(name = "file2H2Job")
+    @Bean
     public Job file2H2Job(@Qualifier("fileToPostgresStep") Step fileToPostgresStep,
                           @Qualifier("postgres2H2Step") Step postgres2H2Step) {
 
@@ -71,7 +67,7 @@ public class BatchH2 {
                 .build();
     }
 
-    @Bean(name = "postgres2H2Step")
+    @Bean
     protected Step postgres2H2Step(GegevensPgReader<BeschikkingsBevoegdheid> reader,
                                    BeschikkingsBevoegdheidProcessor processor,
                                    BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> writer) {

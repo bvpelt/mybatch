@@ -39,7 +39,7 @@ jacco reports and maven
 # Maven
 - https://maven.apache.org/pom.html 
 - life cycle https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
-
+- asciidoc examples https://github.com/asciidoctor/asciidoctor-maven-examples
 
 
 ###

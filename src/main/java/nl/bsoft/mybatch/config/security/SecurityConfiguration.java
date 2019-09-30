@@ -14,6 +14,13 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
 
+    @SuppressWarnings("deprecation")
+    @Bean
+    public static NoOpPasswordEncoder passwordEncoder() {
+        logger.info("Created passwordEncoder()");
+        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+    }
+
     protected void configure(AuthenticationManagerBuilder auth)
             throws Exception {
         auth.inMemoryAuthentication()
@@ -30,17 +37,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/console/**").permitAll()
                 .antMatchers("/").permitAll()
                 .and().httpBasic();
-        ;
         httpSecurity.csrf().disable();
         httpSecurity.headers().frameOptions().disable();
         logger.info("Configured httpsecurity");
-    }
-
-    @SuppressWarnings("deprecation")
-    @Bean
-    public static NoOpPasswordEncoder passwordEncoder() {
-        logger.info("Created passwordEncoder()");
-        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
     }
 
 }

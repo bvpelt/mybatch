@@ -1,7 +1,6 @@
 package nl.bsoft.mybatch.csv;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Gegeven {
     private Long code;

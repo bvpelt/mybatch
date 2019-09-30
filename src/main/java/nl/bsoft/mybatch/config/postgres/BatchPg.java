@@ -30,7 +30,7 @@ import org.springframework.core.io.FileSystemResource;
 @Configuration
 public class BatchPg {
     private static final Logger logger = LoggerFactory.getLogger(BatchPg.class);
-
+    private static final String WILL_BE_INJECTED = null;
     private final int DEFAULT_CHUNKSIZE = 10;
     private int chunkSize;
 
@@ -40,13 +40,7 @@ public class BatchPg {
     @Autowired
     private StepBuilderFactory stepBuilder;
 
-
-    private static final String WILL_BE_INJECTED = null;
-
-    public BatchPg(final JobBuilderFactory jobBuilderFactory,
-                   final StepBuilderFactory stepBuilderFactory) {
-        this.jobBuilder = jobBuilderFactory;
-        this.stepBuilder = stepBuilderFactory;
+    public BatchPg() {
         this.chunkSize = DEFAULT_CHUNKSIZE;
     }
 
@@ -54,12 +48,12 @@ public class BatchPg {
         return this.chunkSize;
     }
 
-    public void setChunkSize(int chunkSize) {
+    public void setChunkSize(final int chunkSize) {
         this.chunkSize = chunkSize;
     }
 
-    @Bean(name = "fileToPostgresJob")
-    public Job fileToPostgresJob(@Qualifier("fileToPostgresStep") Step fileToPostgresStep) {
+    @Bean
+    public Job fileToPostgresJob(final Step fileToPostgresStep) {
 
         MyJobListener myJobListener = new MyJobListener();
 
@@ -72,7 +66,7 @@ public class BatchPg {
 
     @Bean
     @StepScope
-    public FlatFileItemReader<Gegeven> csvItemReader(@Value("#{jobParameters['filename']}")final String fileName) {
+    public FlatFileItemReader<Gegeven> csvItemReader(@Value("#{jobParameters['filename']}") final String fileName) {
         logger.debug("getItemReader with parameter filename: {}", fileName);
         FlatFileItemReader<Gegeven> itemReader = new FlatFileItemReader<Gegeven>();
         itemReader.setLinesToSkip(1);
@@ -86,10 +80,10 @@ public class BatchPg {
         return itemReader;
     }
 
-    @Bean("fileToPostgresStep")
+    @Bean
     public Step fileToPostgresStep(ItemReader<Gegeven> csvItemReader,
-                                      @Qualifier("gegevensProcessor") ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
-                                      @Qualifier("gegevensWriter") ItemWriter<BeschikkingsBevoegdheid> writer) {
+                                   @Qualifier("gegevensProcessor") ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
+                                   @Qualifier("gegevensWriter") ItemWriter<BeschikkingsBevoegdheid> writer) {
         return stepBuilder.get("fileToPostgresStep")
                 .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
                 .reader(csvItemReader(WILL_BE_INJECTED))
@@ -104,6 +98,5 @@ public class BatchPg {
                 .allowStartIfComplete(true) // Restart always possible
                 .build();
     }
-
 
 }

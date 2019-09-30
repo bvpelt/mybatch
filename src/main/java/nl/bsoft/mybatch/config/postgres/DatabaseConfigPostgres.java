@@ -5,7 +5,6 @@ import nl.bsoft.mybatch.config.DatabaseConfig;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -30,41 +29,41 @@ import java.util.Properties;
 public class DatabaseConfigPostgres extends DatabaseConfig {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseConfigPostgres.class);
 
-    @Bean(name = "dataSource")
+    @Bean
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.postgres")
-    public DataSource dataSource() {
+    public DataSource dataSourcePg() {
         logger.debug("Get primary datasource");
         return DataSourceBuilder.create().build();
     }
 
-    @Bean(name = "liquibaseProperties")
+    @Bean
     @ConfigurationProperties(prefix = "datasource.postgres.liquibase")
     public LiquibaseProperties liquibaseProperties() {
         return new LiquibaseProperties();
     }
 
-    @Bean(name = "liquibase")
+    @Bean
     @Primary
-    public SpringLiquibase liquibase(@Qualifier("dataSource") final DataSource dataSource) {
-        return springLiquibase(dataSource, liquibaseProperties());
+    public SpringLiquibase liquibase(final DataSource dataSourcePg) {
+        return springLiquibase(dataSourcePg, liquibaseProperties());
     }
 
-    @Bean(name = "transactionManagerPg")
+    @Bean
     @Primary
     public PlatformTransactionManager transactionManagerPg() {
         logger.debug("Get primary transactionManager");
         return new JpaTransactionManager(entityManagerFactoryPg().getObject());
     }
 
-    @Bean(name = "entityManagerFactoryPg")
+    @Bean
     @Primary
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryPg() {
 
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
 
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
-        factoryBean.setDataSource(dataSource());
+        factoryBean.setDataSource(dataSourcePg());
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setJpaProperties(hibernateProperties());
         factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.postgres.repo", "nl.bsoft.mybatch.database");

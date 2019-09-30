@@ -1,6 +1,5 @@
 package nl.bsoft.mybatch.config.h2;
 
-import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheidH2;
 import org.slf4j.Logger;

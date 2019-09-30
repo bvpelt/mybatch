@@ -1,7 +1,5 @@
 package nl.bsoft.mybatch.config.h2;
 
-import nl.bsoft.mybatch.config.postgres.GegevensPgWriter;
-import nl.bsoft.mybatch.database.BeschikkingsBevoegdheidH2;
 import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;

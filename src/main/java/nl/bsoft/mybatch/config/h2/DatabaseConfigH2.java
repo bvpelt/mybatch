@@ -11,7 +11,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -30,31 +29,31 @@ import java.util.Properties;
 public class DatabaseConfigH2 extends DatabaseConfig {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseConfigH2.class);
 
-    @Bean(name = "dataSourceH2")
+    @Bean
     @ConfigurationProperties(prefix = "spring.datasource.h2")
     public DataSource dataSourceH2() {
 
         return DataSourceBuilder.create().build();
     }
 
-    @Bean(name = "liquibasePropertiesH2")
+    @Bean
     @ConfigurationProperties(prefix = "datasource.h2.h2liquibase")
     public LiquibaseProperties liquibasePropertiesH2() {
 
         return new LiquibaseProperties();
     }
 
-    @Bean(name = "liquibaseH2")
+    @Bean
     public SpringLiquibase liquibaseH2(@Qualifier("dataSourceH2") final DataSource dataSource) {
         return springLiquibase(dataSource, liquibasePropertiesH2());
     }
 
-    @Bean(name = "transactionManagerH2")
+    @Bean
     public PlatformTransactionManager transactionManagerH2() {
         return new JpaTransactionManager(entityManagerFactoryH2().getObject());
     }
 
-    @Bean(name = "entityManagerFactoryH2")
+    @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryH2() {
 
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();

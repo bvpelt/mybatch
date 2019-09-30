@@ -1,0 +1,40 @@
+MyBatch
+=======
+
+This project demonstrates the use of spring batch.
+Spring Batch is a framework designed for robust batch application.
+Documentation can be found at https://docs.spring.io/spring-batch/4.0.x/reference/html/index-single.html[this location].
+
+Prerequisits
+------------
+
+In order to be able to use the project on needs:
+
+- Java 1.8 installed
+- Postgresql installed with
+* database: mybatch
+* user: testuser
+* password: 12345
+
+Purpose
+-------
+
+The purpose of this project is to read data from a _.csv_ file, and store these data in a postgres database.
+The next step is to read the data from the postgres database, do a small transformation and store the resulting data in an h2 database.
+
+Batch Processing
+----------------
+A standard patch proces consists of 1 or more steps. Defining a batch job is done as follows:
+
+[source,java]
+ @Bean
+    public Job fileToPostgresJob(final Step fileToPostgresStep) {
+        MyJobListener myJobListener = new MyJobListener();
+        return jobBuilder.get("fileToPostgresJob")
+                .listener(myJobListener)
+                .incrementer(new RunIdIncrementer())
+                .start(fileToPostgresStep)
+                .build();
+    }
+
+

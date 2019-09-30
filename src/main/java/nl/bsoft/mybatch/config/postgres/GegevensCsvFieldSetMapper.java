@@ -31,7 +31,7 @@ public class GegevensCsvFieldSetMapper implements FieldSetMapper<Gegeven> {
 
         // datumvanaf
         string = fieldSet.readString(2);
-        if ((string != null) && (string.length()> 0)) {
+        if ((string != null) && (string.length() > 0)) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             date = LocalDate.parse(string, formatter);
             gegeven.setDatumVanAf(date);
@@ -39,7 +39,7 @@ public class GegevensCsvFieldSetMapper implements FieldSetMapper<Gegeven> {
 
         // datumtot
         string = fieldSet.readString(3);
-        if ((string != null) && (string.length()> 0)) {
+        if ((string != null) && (string.length() > 0)) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             date = LocalDate.parse(string, formatter);
             gegeven.setDatumTot(date);
