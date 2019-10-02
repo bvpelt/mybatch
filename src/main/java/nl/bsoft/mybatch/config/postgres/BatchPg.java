@@ -3,6 +3,10 @@ package nl.bsoft.mybatch.config.postgres;
 import nl.bsoft.mybatch.config.MyJobListener;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
+import nl.bsoft.mybatch.utils.ExceptionSkipPolicy;
+import nl.bsoft.mybatch.utils.FileSkipListener;
+import nl.bsoft.mybatch.utils.FileUtils;
+import org.hibernate.SessionFactory;
 import org.hibernate.exception.DataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +25,15 @@ import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ResourceLoader;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 @Configuration
 public class BatchPg {
@@ -39,6 +47,9 @@ public class BatchPg {
 
     @Autowired
     private StepBuilderFactory stepBuilder;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     public BatchPg() {
         this.chunkSize = DEFAULT_CHUNKSIZE;
@@ -66,11 +77,22 @@ public class BatchPg {
 
     @Bean
     @StepScope
-    public FlatFileItemReader<Gegeven> csvItemReader(@Value("#{jobParameters['filename']}") final String fileName) {
+    public FlatFileItemReader<Gegeven> csvItemReader(@Value("#{jobParameters['filename']}") final String fileName) throws IOException {
         logger.debug("getItemReader with parameter filename: {}", fileName);
+
+        File file = null;
+        String fullFileName = null;
+
+        file = FileUtils.search(fileName);
+        if (file == null) {
+            throw new FileNotFoundException("file: " + fileName);
+        } else {
+            fullFileName = file.toString();
+        }
+
         FlatFileItemReader<Gegeven> itemReader = new FlatFileItemReader<Gegeven>();
         itemReader.setLinesToSkip(1);
-        itemReader.setResource(new FileSystemResource("src/main/resources/" + fileName)); //DelimitedLineTokenizer defaults to comma as its delimiter
+        itemReader.setResource(new FileSystemResource(fullFileName)); //DelimitedLineTokenizer defaults to comma as its delimiter
         DefaultLineMapper<Gegeven> lineMapper = new DefaultLineMapper<Gegeven>();
         lineMapper.setLineTokenizer(new DelimitedLineTokenizer());
         lineMapper.setFieldSetMapper(new GegevensCsvFieldSetMapper());
@@ -82,21 +104,52 @@ public class BatchPg {
 
     @Bean
     public Step fileToPostgresStep(ItemReader<Gegeven> csvItemReader,
-                                   @Qualifier("gegevensProcessor") ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
-                                   @Qualifier("gegevensWriter") ItemWriter<BeschikkingsBevoegdheid> writer) {
+                                   ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
+                                   ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
         return stepBuilder.get("fileToPostgresStep")
                 .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
                 .reader(csvItemReader(WILL_BE_INJECTED))
                 .faultTolerant()
                 .skipLimit(2) // 2 parsing exceptions are ok
-                .skip(FlatFileParseException.class)
+//                .skip(FlatFileParseException.class)
+                .skipPolicy(fileException())
+                .listener(fileSkipListener())
                 .processor(processor)
-                .writer(writer)
-                .faultTolerant()
-                .skip(DataException.class)
-                .startLimit(2) // Only 2 starts for this step
-                .allowStartIfComplete(true) // Restart always possible
+                .writer(gegevensWriter)
+//                .faultTolerant()
+//                .skip(DataException.class)
+//                .startLimit(2) // Only 2 starts for this step
+//                .allowStartIfComplete(true) // Restart always possible
+
                 .build();
     }
 
+    @Bean
+    public ItemReader<Gegeven> gegevensReader() {
+        ItemReader<Gegeven> gegevenItemReader = new GegevensCsvReader();
+        return gegevenItemReader;
+    }
+
+    @Bean
+    public ItemWriter<BeschikkingsBevoegdheid> gegevensWriter(SessionFactory sfPostgres) {
+        GegevensPgWriter gegevensPgWriter = new GegevensPgWriter(sfPostgres);
+
+        return gegevensPgWriter;
+    }
+
+    @Bean
+    public ItemProcessor<Gegeven, BeschikkingsBevoegdheid> gegevensProcessor() {
+
+        return new GegevensProcessor();
+    }
+
+    @Bean
+    public ExceptionSkipPolicy fileException() {
+        return new ExceptionSkipPolicy(FlatFileParseException.class);
+    }
+
+    @Bean
+    public FileSkipListener fileSkipListener() {
+        return new FileSkipListener();
+    }
 }

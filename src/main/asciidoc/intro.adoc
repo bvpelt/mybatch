@@ -1,13 +1,13 @@
-MyBatch
-=======
+= MyBatch =
+Bart van Pelt <bart.vanpelt@gmail.com>
+Version 0.1, Oct 2019
 
+== Introduction ==
 This project demonstrates the use of spring batch.
 Spring Batch is a framework designed for robust batch application.
 Documentation can be found at https://docs.spring.io/spring-batch/4.0.x/reference/html/index-single.html[this location].
 
-Prerequisits
-------------
-
+== Prerequisits ==
 In order to be able to use the project on needs:
 
 - Java 1.8 installed
@@ -16,25 +16,107 @@ In order to be able to use the project on needs:
 * user: testuser
 * password: 12345
 
-Purpose
--------
-
+== Purpose ==
 The purpose of this project is to read data from a _.csv_ file, and store these data in a postgres database.
 The next step is to read the data from the postgres database, do a small transformation and store the resulting data in an h2 database.
 
-Batch Processing
-----------------
-A standard patch proces consists of 1 or more steps. Defining a batch job is done as follows:
+== Batch Processing ==
+A standard patch proces consists of 1 or more steps.
 
+=== Starting a Job ===
+Jobs are started by a JobLauncher. The JobLauncher uses parameters.
+In this project the jobs are started through a web service call. The
+web service is implemented in a controller which accepts parameters.
+These parameters must be passed to the job and steps.
+
+.Example starting jobs
 [source,java]
- @Bean
-    public Job fileToPostgresJob(final Step fileToPostgresStep) {
-        MyJobListener myJobListener = new MyJobListener();
-        return jobBuilder.get("fileToPostgresJob")
-                .listener(myJobListener)
-                .incrementer(new RunIdIncrementer())
-                .start(fileToPostgresStep)
-                .build();
+----
+ @GetMapping("/csvtoh2")
+    public String csvtoh2(@RequestParam(value = "fileName") String fileName) throws Exception {
+
+        String result = "ready";
+
+        logger.info("Start job with parameters fileName: {}", fileName);
+
+        JobParameters parameters = new JobParametersBuilder()
+                .addLong("filename", fileName)
+                .toJobParameters();
+
+        try {
+            jobLauncher.run(file2H2Job, parameters);
+        } catch (Exception e) {
+            result = "error";
+        }
+        return result;
     }
+----
 
+=== Defining a job ===
+The first step is identfied by .start, the next step(s) are identified by .next.
+Defining a batch job is done as follows:
 
+.Example: job definition
+[source,java]
+----
+@Bean
+public Job file2H2Job(Step fileToPostgresStep,
+                      Step postgres2H2Step) {
+
+    MyJobListener myJobListener = new MyJobListener();
+
+    return jobBuilder.get("file2H2Job")
+            .listener(myJobListener)
+            .incrementer(new RunIdIncrementer())
+            .start(fileToPostgresStep)
+            .next(postgres2H2Step)
+            .build();
+}
+----
+
+=== Defining a step ===
+A step consist of:
+
+- reader
+- processor
+- writer
+
+.Example: step definitions
+[source,java]
+----
+@Bean
+protected Step postgres2H2Step(GegevensPgReader<BeschikkingsBevoegdheid> reader,
+                               BeschikkingsBevoegdheidProcessor processor,
+                               BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> writer) {
+    return stepBuilder.get("postgres2H2Step")
+            .<BeschikkingsBevoegdheid, BeschikkingsBevoegdheidH2>chunk(chunkSize)
+            .reader(reader)
+            .processor(processor)
+            .writer(writer)
+            .build();
+}
+----
+
+The reader needs the input parameters which can be extracted by using @StepScope.
+[NOTE]
+This causes late binding.
+
+.Example: stepscope
+[source,java]
+----
+@Bean
+@StepScope
+public FlatFileItemReader<Gegeven> csvItemReader(@Value("#{jobParameters['filename']}") final String fileName) {
+    logger.debug("getItemReader with parameter filename: {}", fileName);
+    FlatFileItemReader<Gegeven> itemReader = new FlatFileItemReader<Gegeven>();
+    itemReader.setLinesToSkip(1);
+    itemReader.setResource(new FileSystemResource("src/main/resources/" + fileName));
+    DefaultLineMapper<Gegeven> lineMapper = new DefaultLineMapper<Gegeven>();
+    lineMapper.setLineTokenizer(new DelimitedLineTokenizer());
+    lineMapper.setFieldSetMapper(new GegevensCsvFieldSetMapper());
+    itemReader.setLineMapper(lineMapper);
+    itemReader.open(new ExecutionContext());
+
+    return itemReader;
+}
+----

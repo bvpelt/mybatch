@@ -14,3 +14,14 @@ Functionaliteit: Lees uit csv files
     Gegeven database is geinitialiseerd
     Als job "csvtopostgres" met success gedraaid heeft voor bestand "Beschikkingsbevoegdheid.csv"
     Dan zijn er 9 gegevens vastgelegd
+
+
+  Scenario: Voer verwerking uit met 1 fout in invoerbestand met 10 records
+    Gegeven database is geinitialiseerd
+    Als job "csvtopostgres" met success gedraaid heeft voor bestand "BeschikkingF01.csv"
+    Dan zijn er 9 gegevens vastgelegd
+
+  Scenario: Voer verwerking uit met 2 fouten in invoerbestand met 10 records
+    Gegeven database is geinitialiseerd
+    Als job "csvtopostgres" met success gedraaid heeft voor bestand "BeschikkingF02.csv"
+    Dan zijn er 9 gegevens vastgelegd

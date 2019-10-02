@@ -341,7 +341,18 @@
                         <goals>
                             <goal>process-asciidoc</goal>
                         </goals>
+                        <configuration>
+                            <backend>html5</backend>
+                            <doctype>book</doctype>
+                            <attributes>
+                                <toc>left</toc>
+                                <sectnums>true</sectnums>
+                                <icons>true</icons>
+                                <imagesdir>images</imagesdir>
+                            </attributes>
+                        </configuration>
                     </execution>
+                    <!--
                     <execution>
                         <id>output-docbook</id>
                         <phase>generate-resources</phase>
@@ -353,23 +364,74 @@
                             <doctype>book</doctype>
                         </configuration>
                     </execution>
+-->
+                    <execution>
+                        <id>asciidoc-to-docbook</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>docbook</backend>
+                            <doctype>book</doctype>
+                            <attributes>
+                                <toc/>
+                                <sectnum>true</sectnum>
+                                <icons>true</icons>
+                                <imagesdir>images</imagesdir>
+                            </attributes>
+                        </configuration>
+                    </execution>
                 </executions>
+
+
                 <configuration>
                     <sourceDirectory>src/main/asciidoc</sourceDirectory>
                     <outputDirectory>target/docs/asciidoc</outputDirectory>
-                    <backend>html5</backend>
                     <sourceHighlighter>coderay</sourceHighlighter>
+                    <!--
+                    <backend>html5</backend>
                     <doctype>book</doctype>
+                    -->
                     <attributes>
+                        <sourcedir>${project.build.sourceDirectory}</sourcedir>
+                        <!--
                         <project-version>${project.version}</project-version>
-                        <sectnums>true</sectnums>
-                        <source-highlighter>coderay</source-highlighter>
-                        <coderay-css>style</coderay-css>
                         <revnumber>${project.version}</revnumber>
                         <revdate>${maven.build.timestamp}</revdate>
                         <organization>${project.organization.name}</organization>
-                        <toc/>
+                        -->
+                        <source-highlighter>coderay</source-highlighter>
+                        <coderay-css>style</coderay-css>
+
                     </attributes>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>com.agilejava.docbkx</groupId>
+                <artifactId>docbkx-maven-plugin</artifactId>
+                <version>2.0.17</version>
+                <executions>
+                    <execution>
+                        <id>generate-pdf</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>generate-pdf</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceDirectory>target/docs/asciidoc</sourceDirectory>
+                    <targetDirectory>${project.build.directory}/generated-doc</targetDirectory>
+                    <includes>intro.xml</includes>
+                    <!-- NOTE imgSrcPath is handled by AsciiDoc settings -->
+                    <imgSrcPath></imgSrcPath>
+                    <!-- FIXME highlightSource not working! -->
+                    <highlightSource>1</highlightSource>
+                    <hyphenate>true</hyphenate>
+                    <hyphenateVerbatim>true</hyphenateVerbatim>
                 </configuration>
             </plugin>
         </plugins>

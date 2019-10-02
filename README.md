@@ -10,7 +10,6 @@ It will generate the package and the site information.
 In order to use this project you need to have
 - postgres 10 installed and running with database mybatch and user testuser with password 12345
 
-
 # Database config
 See http://www.javaoptimum.com/how-to-configure-multiple-datasources-with-spring-boot/
 
@@ -39,7 +38,13 @@ jacco reports and maven
 # Maven
 - https://maven.apache.org/pom.html 
 - life cycle https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
-- asciidoc examples https://github.com/asciidoctor/asciidoctor-maven-examples
+- asciidoc
+    - http://asciidoc.org/ 
+    - cheatsheet https://powerman.name/doc/asciidoc
+    - examples https://github.com/asciidoctor/asciidoctor-maven-examples
+- asciidoc to dockbook 
+    - http://docbkx-tools.sourceforge.net/docbkx-samples/manual.html
+    - https://github.com/mimil/docbkx-tools
 
 
 ###
