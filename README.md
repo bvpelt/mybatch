@@ -46,6 +46,11 @@ jacco reports and maven
     - http://docbkx-tools.sourceforge.net/docbkx-samples/manual.html
     - https://github.com/mimil/docbkx-tools
 
+# Lombok
+See 
+- project https://projectlombok.org/
+- intellij plugin https://projectlombok.org/setup/intellij
+- https://www.baeldung.com/lombok-ide 
 
 ###
 - https://stackoverflow.com/questions/6078009/how-to-get-access-to-job-parameters-from-itemreader-in-spring-batch

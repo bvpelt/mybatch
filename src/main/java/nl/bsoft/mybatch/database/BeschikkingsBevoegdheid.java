@@ -1,11 +1,14 @@
 package nl.bsoft.mybatch.database;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity(name = "BeschikkingsBevoegdheid")
 @Table(name = "BESCHIKKINGSBEVOEGDHEID")
-public class BeschikkingsBevoegdheid {
+public @Data
+class BeschikkingsBevoegdheid {
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,44 +28,4 @@ public class BeschikkingsBevoegdheid {
 
     @Column(name = "TOELICHTING")
     private String toelichting;
-
-    public Long getCode() {
-        return code;
-    }
-
-    public void setCode(Long code) {
-        this.code = code;
-    }
-
-    public String getWaarde() {
-        return waarde;
-    }
-
-    public void setWaarde(String waarde) {
-        this.waarde = waarde;
-    }
-
-    public LocalDate getDatumVanAf() {
-        return datumVanAf;
-    }
-
-    public void setDatumVanAf(LocalDate datumVanAf) {
-        this.datumVanAf = datumVanAf;
-    }
-
-    public LocalDate getDatumTot() {
-        return datumTot;
-    }
-
-    public void setDatumTot(LocalDate datumTot) {
-        this.datumTot = datumTot;
-    }
-
-    public String getToelichting() {
-        return toelichting;
-    }
-
-    public void setToelichting(String toelichting) {
-        this.toelichting = toelichting;
-    }
 }
