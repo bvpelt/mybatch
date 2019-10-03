@@ -25,7 +25,10 @@ public class JobsController {
     JobLauncher jobLauncher;
 
     @Autowired
-    Job fileToPostgresJob;
+    Job fileToPostgresSkipJob;
+
+    @Autowired
+    Job fileToPostgresLimitJob;
 
     @Autowired
     Job postgres2H2Job;
@@ -33,32 +36,19 @@ public class JobsController {
     @Autowired
     Job file2H2Job;
 
-    @GetMapping("/csvtopostgres")
-    public String csvtopostgres(@RequestParam(value = "fileName") String fileName) throws Exception {
-        logger.debug("Start csvtopostgres with filename: {}", fileName);
+    @GetMapping("/csvtopostgresskip")
+    public String csvtopostgresskip(@RequestParam(value = "fileName") String fileName) throws Exception {
+        logger.debug("Start csvtopostgresskip with filename: {}", fileName);
 
-        if ((fileName == null) ||
-                (fileName.length() == 0)) {
-            throw new Exception("fileName parameter expected but not present");
-        }
+        String result = startCsvJob(fileToPostgresSkipJob, fileName);
+        return result;
+    }
 
-        String result = "ready";
-        long now = System.currentTimeMillis();
-        LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault());
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss.SSS");
+    @GetMapping("/csvtopostgreslimit")
+    public String csvtopostgreslimit(@RequestParam(value = "fileName") String fileName) throws Exception {
+        logger.debug("Start csvtopostgreslimit with filename: {}", fileName);
 
-        logger.info("Start job with parameters fileName: {}, startTime: {}", fileName, date.format(dateTimeFormatter));
-
-        JobParameters parameters = new JobParametersBuilder()
-                .addString("filename", fileName)
-                .addDate("startdate", DateUtils.asDate(date))
-                .toJobParameters();
-
-        try {
-            jobLauncher.run(fileToPostgresJob, parameters);
-        } catch (Exception e) {
-            result = "error";
-        }
+        String result = startCsvJob(fileToPostgresLimitJob, fileName);
         return result;
     }
 
@@ -115,4 +105,31 @@ public class JobsController {
 
         return result;
     }
+
+    private String startCsvJob(final Job fileToPostgresSkipJob, final String fileName) throws Exception {
+        if ((fileName == null) ||
+                (fileName.length() == 0)) {
+            throw new Exception("fileName parameter expected but not present");
+        }
+
+        String result = "ready";
+        long now = System.currentTimeMillis();
+        LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss.SSS");
+
+        logger.info("Start job with parameters fileName: {}, startTime: {}", fileName, date.format(dateTimeFormatter));
+
+        JobParameters parameters = new JobParametersBuilder()
+                .addString("filename", fileName)
+                .addDate("startdate", DateUtils.asDate(date))
+                .toJobParameters();
+
+        try {
+            jobLauncher.run(fileToPostgresSkipJob, parameters);
+        } catch (Exception e) {
+            result = "error";
+        }
+        return result;
+    }
+
 }

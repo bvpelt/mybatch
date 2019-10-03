@@ -42,7 +42,7 @@ public class BatchH2 {
     }
 
     @Bean
-    public Job postgres2H2Job(@Qualifier("postgres2H2Step") Step postgres2H2Step) {
+    public Job postgres2H2Job(final Step postgres2H2Step) {
 
         MyJobListener myJobListener = new MyJobListener();
 
@@ -54,15 +54,15 @@ public class BatchH2 {
     }
 
     @Bean
-    public Job file2H2Job(@Qualifier("fileToPostgresStep") Step fileToPostgresStep,
-                          @Qualifier("postgres2H2Step") Step postgres2H2Step) {
+    public Job file2H2Job(final Step fileToPostgresStepSkip,
+                          final Step postgres2H2Step) {
 
         MyJobListener myJobListener = new MyJobListener();
 
         return jobBuilder.get("file2H2Job")
                 .listener(myJobListener)
                 .incrementer(new RunIdIncrementer())
-                .start(fileToPostgresStep)
+                .start(fileToPostgresStepSkip)
                 .next(postgres2H2Step)
                 .build();
     }

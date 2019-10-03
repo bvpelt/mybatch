@@ -1,0 +1,13 @@
+"Code","Waarde"                           ,"DatumVanaf","DatumTot"  ,"Toelichting"
+"1"   ,"Faillietverklaring"               , 2011-01-01, 9999-12-31,""
+"2"   ,"Ondercuratelestelling"            , 2011-01-01, 9999-12-31,""
+"3"   ,"Surseance"                        , 2011-01-01, 9999-12-31,""
+"4"   ,"Provisioneel bewind"              , 2011-01-01, 9999-12-31,""
+"5"   ,"Vicair beheer"                    , 2011-01-01, 2018-09-01,""
+"10"  ,"Fout 01"                          ,            ,            ,
+"11"  ,"Fout 02"                          ,"15-07-2010",""          ,
+"12"  ,"Fout 03"                          ,            ,            ,
+"6"   ,"Voogdij"                          , 2011-01-01, 9999-12-31,""
+"7"   ,"Verklaring executele"             , 2013-02-08, 9999-12-31,""
+"8"   ,"Bewind"                           , 2018-07-01, 9999-12-31,""
+"9"   ,"Schuldsanering natuurlijk persoon", 2018-07-15, 9999-12-31,""

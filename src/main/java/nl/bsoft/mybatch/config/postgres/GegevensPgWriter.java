@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
@@ -20,9 +19,9 @@ public class GegevensPgWriter<BeschikkingsBevoegdheid> extends HibernateItemWrit
     private boolean autoCommit = true;
 
     @Autowired
-    public GegevensPgWriter(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
-        setSessionFactory(sessionFactory);
-        this.sessionFactory = sessionFactory;
+    public GegevensPgWriter(final SessionFactory sfPostgres) {
+        setSessionFactory(sfPostgres);
+        this.sessionFactory = sfPostgres;
     }
 
     @Override
@@ -35,9 +34,9 @@ public class GegevensPgWriter<BeschikkingsBevoegdheid> extends HibernateItemWrit
         logger.info("autoCommit set to: {}", autoCommit);
 
         if (autoCommit) {
-            final Transaction tx = sessionFactory.getCurrentSession().beginTransaction();
+            final Transaction tx = this.sessionFactory.getCurrentSession().beginTransaction();
             try {
-                super.doWrite(sessionFactory, items);
+                super.doWrite(this.sessionFactory, items);
                 tx.commit();
             } catch (final Exception e) {
                 tx.rollback();
@@ -49,15 +48,4 @@ public class GegevensPgWriter<BeschikkingsBevoegdheid> extends HibernateItemWrit
         }
     }
 
-    /*
-    @Autowired
-    @Override
-    public void setSessionFactory(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
-        if (this.sessionFactory == null) {
-            logger.warn("No session factory defined, default sessionfactory used");
-            this.sessionFactory = sessionFactory;
-        }
-        super.setSessionFactory(this.sessionFactory);
-    }
-     */
 }

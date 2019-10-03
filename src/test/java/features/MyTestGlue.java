@@ -54,10 +54,24 @@ public class MyTestGlue extends AbstractSpringTest implements Nl {
         Assert.assertEquals(true, resource.exists());
     }
 
-    @Als("^de gegevens gelezen zijn uit bestand \"([^\"]*)\"$")
-    public void readTheData(final String fileName) {
-        String url = "/csvtopostgres?fileName=" + fileName;
-        logger.debug("Start job csvtopostgres using url: {}", url);
+    @Als("^de gegevens gelezen zijn uit bestand met skip \"([^\"]*)\"$")
+    public void readTheDataSkip(final String fileName) {
+        String url = "/csvtopostgresskip?fileName=" + fileName;
+        logger.debug("Start job csvtopostgresskip using url: {}", url);
+
+        ResultActions result = null;
+        try {
+            result = TestUtils.handleGetRequest(jobsController, url);
+            result.andExpect(status().is(200));
+        } catch (Exception e) {
+            logger.error("Data not read during test");
+        }
+    }
+
+    @Als("^de gegevens gelezen zijn uit bestand met limit\"([^\"]*)\"$")
+    public void readTheDataLimit(final String fileName) {
+        String url = "/csvtopostgreslimit?fileName=" + fileName;
+        logger.debug("Start job csvtopostgreslimit using url: {}", url);
 
         ResultActions result = null;
         try {

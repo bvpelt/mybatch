@@ -3,6 +3,7 @@ package nl.bsoft.mybatch.config.postgres;
 import nl.bsoft.mybatch.config.MyJobListener;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
+import nl.bsoft.mybatch.utils.ExceptionLimitSkipPolicy;
 import nl.bsoft.mybatch.utils.ExceptionSkipPolicy;
 import nl.bsoft.mybatch.utils.FileSkipListener;
 import nl.bsoft.mybatch.utils.FileUtils;
@@ -34,6 +35,8 @@ import org.springframework.core.io.ResourceLoader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class BatchPg {
@@ -64,14 +67,26 @@ public class BatchPg {
     }
 
     @Bean
-    public Job fileToPostgresJob(final Step fileToPostgresStep) {
+    public Job fileToPostgresSkipJob(final Step fileToPostgresStepSkip) {
 
         MyJobListener myJobListener = new MyJobListener();
 
-        return jobBuilder.get("fileToPostgresJob")
+        return jobBuilder.get("fileToPostgresSkipJob")
                 .listener(myJobListener)
                 .incrementer(new RunIdIncrementer())
-                .start(fileToPostgresStep)
+                .start(fileToPostgresStepSkip)
+                .build();
+    }
+
+    @Bean
+    public Job fileToPostgresLimitJob(final Step fileToPostgresStepLimit) {
+
+        MyJobListener myJobListener = new MyJobListener();
+
+        return jobBuilder.get("fileToPostgresLimitJob")
+                .listener(myJobListener)
+                .incrementer(new RunIdIncrementer())
+                .start(fileToPostgresStepLimit)
                 .build();
     }
 
@@ -103,7 +118,7 @@ public class BatchPg {
     }
 
     @Bean
-    public Step fileToPostgresStep(ItemReader<Gegeven> csvItemReader,
+    public Step fileToPostgresStepSkip(ItemReader<Gegeven> csvItemReader,
                                    ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
                                    ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
         return stepBuilder.get("fileToPostgresStep")
@@ -111,8 +126,25 @@ public class BatchPg {
                 .reader(csvItemReader(WILL_BE_INJECTED))
                 .faultTolerant()
                 .skipLimit(2) // 2 parsing exceptions are ok
-//                .skip(FlatFileParseException.class)
-                .skipPolicy(fileException())
+                .skip(FlatFileParseException.class)
+                .processor(processor)
+                .writer(gegevensWriter)
+                .build();
+    }
+
+
+
+
+
+    @Bean
+    public Step fileToPostgresStepLimit(ItemReader<Gegeven> csvItemReader,
+                                   ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
+                                   ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
+        return stepBuilder.get("fileToPostgresStep")
+                .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
+                .reader(csvItemReader(WILL_BE_INJECTED))
+                .faultTolerant()
+                .skipPolicy(fileExceptionSet())
                 .listener(fileSkipListener())
                 .processor(processor)
                 .writer(gegevensWriter)
@@ -120,9 +152,9 @@ public class BatchPg {
 //                .skip(DataException.class)
 //                .startLimit(2) // Only 2 starts for this step
 //                .allowStartIfComplete(true) // Restart always possible
-
                 .build();
     }
+
 
     @Bean
     public ItemReader<Gegeven> gegevensReader() {
@@ -146,6 +178,13 @@ public class BatchPg {
     @Bean
     public ExceptionSkipPolicy fileException() {
         return new ExceptionSkipPolicy(FlatFileParseException.class);
+    }
+
+    @Bean
+    public ExceptionLimitSkipPolicy fileExceptionSet() {
+        Map<Class<? extends Throwable>, Boolean> skippableExceptions = new HashMap<Class<? extends Throwable>, Boolean>();
+        skippableExceptions.put(FlatFileParseException.class, true);
+        return new ExceptionLimitSkipPolicy(2, skippableExceptions);
     }
 
     @Bean

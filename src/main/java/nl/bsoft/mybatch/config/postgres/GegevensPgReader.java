@@ -4,7 +4,6 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.database.HibernateCursorItemReader;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,10 +13,10 @@ public class GegevensPgReader<BeschikkingsBevoegdheid> extends HibernateCursorIt
     private final SessionFactory sessionFactory;
     private boolean autoCommit = true;
 
-    public GegevensPgReader(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
+    public GegevensPgReader(final SessionFactory sfPostgres) {
         logger.debug("Created GegevensPgReader");
-        this.sessionFactory = sessionFactory;
-        setSessionFactory(sessionFactory);
+        this.sessionFactory = sfPostgres;
+        setSessionFactory(sfPostgres);
         setQueryString("from BeschikkingsBevoegdheid");
         setUseStatelessSession(true);
     }

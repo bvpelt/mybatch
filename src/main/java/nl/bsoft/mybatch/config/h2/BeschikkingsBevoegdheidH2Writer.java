@@ -21,9 +21,9 @@ public class BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> extends 
     private boolean autoCommit = true;
 
     @Autowired
-    public BeschikkingsBevoegdheidH2Writer(@Qualifier("sfH2") final SessionFactory sessionFactory) {
-        super.setSessionFactory(sessionFactory);
-        this.sessionFactory = sessionFactory;
+    public BeschikkingsBevoegdheidH2Writer(final SessionFactory sfH2) {
+        super.setSessionFactory(sfH2);
+        this.sessionFactory = sfH2;
     }
 
     @Bean("beschikkingsBevoegheidH2Writer")
@@ -34,16 +34,16 @@ public class BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> extends 
     @Override
     public void write(final List<? extends BeschikkingsBevoegdheidH2> items) {
 
-        if (sessionFactory == null) {
+        if (this.sessionFactory == null) {
             throw new MappingException("De sessionFactory moet toegewezen zijn voordat geschreven kan worden!");
         }
 
         logger.info("autoCommit set to: {}", autoCommit);
 
         if (autoCommit) {
-            final Transaction tx = sessionFactory.getCurrentSession().beginTransaction();
+            final Transaction tx = this.sessionFactory.getCurrentSession().beginTransaction();
             try {
-                super.doWrite(sessionFactory, items);
+                super.doWrite(this.sessionFactory, items);
                 tx.commit();
             } catch (final Exception e) {
                 tx.rollback();
@@ -54,17 +54,4 @@ public class BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> extends 
             super.write(items);
         }
     }
-
-    /*
-    @Autowired
-    @Override
-    public void setSessionFactory(@Qualifier("sfPostgres") final SessionFactory sessionFactory) {
-        if (this.sessionFactory == null) {
-            logger.warn("No session factory defined, default sessionfactory used");
-            this.sessionFactory = sessionFactory;
-        }
-        super.setSessionFactory(this.sessionFactory);
-    }
-
-     */
 }
