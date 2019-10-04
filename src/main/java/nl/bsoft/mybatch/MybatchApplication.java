@@ -1,7 +1,6 @@
 package nl.bsoft.mybatch;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
@@ -20,10 +19,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
                 LiquibaseAutoConfiguration.class,
                 BatchAutoConfiguration.class})
 //@EnableSwagger2
+@Slf4j
 @EnableAsync
 @EnableTransactionManagement
 public class MybatchApplication extends SpringBootServletInitializer {
-    private static final Logger logger = LoggerFactory.getLogger(MybatchApplication.class);
 
     private static final Class<MybatchApplication> APP_CLASS = MybatchApplication.class;
 
@@ -33,7 +32,7 @@ public class MybatchApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder application) {
-        logger.info("Bezig met configureren...");
+        log.info("Bezig met configureren...");
         return application.sources(APP_CLASS);
     }
 }

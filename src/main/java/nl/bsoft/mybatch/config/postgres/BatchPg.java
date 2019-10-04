@@ -1,16 +1,16 @@
 package nl.bsoft.mybatch.config.postgres;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.MyJobListener;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
+import nl.bsoft.mybatch.listeners.FileSkipListener;
+import nl.bsoft.mybatch.listeners.MyStepListener;
 import nl.bsoft.mybatch.utils.ExceptionLimitSkipPolicy;
 import nl.bsoft.mybatch.utils.ExceptionSkipPolicy;
-import nl.bsoft.mybatch.utils.FileSkipListener;
 import nl.bsoft.mybatch.utils.FileUtils;
 import org.hibernate.SessionFactory;
-import org.hibernate.exception.DataException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -38,9 +38,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Configuration
-public class BatchPg {
-    private static final Logger logger = LoggerFactory.getLogger(BatchPg.class);
+public @Data
+class BatchPg {
     private static final String WILL_BE_INJECTED = null;
     private final int DEFAULT_CHUNKSIZE = 10;
     private int chunkSize;
@@ -56,14 +57,6 @@ public class BatchPg {
 
     public BatchPg() {
         this.chunkSize = DEFAULT_CHUNKSIZE;
-    }
-
-    public int getChunkSize() {
-        return this.chunkSize;
-    }
-
-    public void setChunkSize(final int chunkSize) {
-        this.chunkSize = chunkSize;
     }
 
     @Bean
@@ -93,7 +86,7 @@ public class BatchPg {
     @Bean
     @StepScope
     public FlatFileItemReader<Gegeven> csvItemReader(@Value("#{jobParameters['filename']}") final String fileName) throws IOException {
-        logger.debug("getItemReader with parameter filename: {}", fileName);
+        log.debug("getItemReader with parameter filename: {}", fileName);
 
         File file = null;
         String fullFileName = null;
@@ -119,11 +112,13 @@ public class BatchPg {
 
     @Bean
     public Step fileToPostgresStepSkip(ItemReader<Gegeven> csvItemReader,
-                                   ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
-                                   ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
+                                       ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
+                                       ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
+        MyStepListener<Gegeven,BeschikkingsBevoegdheid> ms = new MyStepListener<Gegeven, BeschikkingsBevoegdheid>();
         return stepBuilder.get("fileToPostgresStep")
                 .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
                 .reader(csvItemReader(WILL_BE_INJECTED))
+                .listener(ms)
                 .faultTolerant()
                 .skipLimit(2) // 2 parsing exceptions are ok
                 .skip(FlatFileParseException.class)
@@ -133,13 +128,10 @@ public class BatchPg {
     }
 
 
-
-
-
     @Bean
     public Step fileToPostgresStepLimit(ItemReader<Gegeven> csvItemReader,
-                                   ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
-                                   ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
+                                        ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
+                                        ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
         return stepBuilder.get("fileToPostgresStep")
                 .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
                 .reader(csvItemReader(WILL_BE_INJECTED))

@@ -1,7 +1,7 @@
 package nl.bsoft.mybatch.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -15,11 +15,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
+@Slf4j
 @Configuration
 @EnableBatchProcessing
 @EnableTransactionManagement
-public class BatchConfig extends DefaultBatchConfigurer {
-    private static final Logger logger = LoggerFactory.getLogger(BatchConfig.class);
+public @Data
+class BatchConfig extends DefaultBatchConfigurer {
 
     private final DataSource dataSourcePg;
     private final PlatformTransactionManager transactionManagerPg;
@@ -28,14 +29,14 @@ public class BatchConfig extends DefaultBatchConfigurer {
     public BatchConfig(final DataSource dataSourcePg,
                        final PlatformTransactionManager transactionManagerPg) {
         super(dataSourcePg);
-        logger.debug("Create BatchConfig - datasource: {}, transactionmanager: {}", dataSourcePg.toString(), transactionManagerPg.toString());
+        log.debug("Create BatchConfig - datasource: {}, transactionmanager: {}", dataSourcePg.toString(), transactionManagerPg.toString());
         this.dataSourcePg = dataSourcePg;
         this.transactionManagerPg = transactionManagerPg;
     }
 
     @Override
     public PlatformTransactionManager getTransactionManager() {
-        logger.debug("Get transaction manager");
+        log.debug("Get transaction manager");
         return this.transactionManagerPg;
     }
 
@@ -58,7 +59,7 @@ public class BatchConfig extends DefaultBatchConfigurer {
         try {
             jobExplorer = factoryBean.getObject();
         } catch (Exception e) {
-            logger.error("Couldnot find job explorer");
+            log.error("Couldnot find job explorer");
         }
         return jobExplorer;
     }

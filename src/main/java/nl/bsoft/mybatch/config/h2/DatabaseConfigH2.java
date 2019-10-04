@@ -1,10 +1,9 @@
 package nl.bsoft.mybatch.config.h2;
 
 import liquibase.integration.spring.SpringLiquibase;
+import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
 import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,13 +20,13 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Properties;
 
+@Slf4j
 @Configuration
 @EnableJpaRepositories(
         entityManagerFactoryRef = "entityManagerFactoryH2",
         transactionManagerRef = "transactionManagerH2"
 )
 public class DatabaseConfigH2 extends DatabaseConfig {
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfigH2.class);
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.h2")

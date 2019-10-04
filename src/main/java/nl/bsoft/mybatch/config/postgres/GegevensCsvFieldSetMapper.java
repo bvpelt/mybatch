@@ -1,9 +1,8 @@
 package nl.bsoft.mybatch.config.postgres;
 
+import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.utils.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.validation.BindException;
@@ -11,8 +10,8 @@ import org.springframework.validation.BindException;
 import java.time.LocalDate;
 import java.util.Date;
 
+@Slf4j
 public class GegevensCsvFieldSetMapper implements FieldSetMapper<Gegeven> {
-    private static final Logger logger = LoggerFactory.getLogger(GegevensCsvFieldSetMapper.class);
 
     @Override
     public Gegeven mapFieldSet(FieldSet fieldSet) throws BindException {

@@ -1,22 +1,12 @@
 package util;
 
-public class MyTestContext {
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public @Data
+class MyTestContext {
     private String fileName;
     private long aantal;
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public long getAantal() {
-        return aantal;
-    }
-
-    public void setAantal(long aantal) {
-        this.aantal = aantal;
-    }
 }

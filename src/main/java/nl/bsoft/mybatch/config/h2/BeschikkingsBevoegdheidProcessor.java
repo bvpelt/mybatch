@@ -1,15 +1,16 @@
 package nl.bsoft.mybatch.config.h2;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheidH2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.context.annotation.Configuration;
 
+@Slf4j
 @Configuration
-public class BeschikkingsBevoegdheidProcessor implements ItemProcessor<BeschikkingsBevoegdheid, BeschikkingsBevoegdheidH2> {
-    private static final Logger logger = LoggerFactory.getLogger(BeschikkingsBevoegdheidProcessor.class);
+public @Data
+class BeschikkingsBevoegdheidProcessor implements ItemProcessor<BeschikkingsBevoegdheid, BeschikkingsBevoegdheidH2> {
 
     @Override
     public BeschikkingsBevoegdheidH2 process(BeschikkingsBevoegdheid beschikkingsBevoegdheid) throws Exception {

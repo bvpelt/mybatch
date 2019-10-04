@@ -1,11 +1,14 @@
 package nl.bsoft.mybatch.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+@Slf4j
 public class DateUtils {
 
     public static Date asDate(LocalDate localDate) {

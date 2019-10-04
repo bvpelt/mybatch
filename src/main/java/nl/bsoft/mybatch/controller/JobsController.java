@@ -1,5 +1,6 @@
 package nl.bsoft.mybatch.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 @Controller
 public class JobsController {
     private static final Logger logger = LoggerFactory.getLogger(JobsController.class);

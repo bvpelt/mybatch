@@ -1,13 +1,12 @@
 package nl.bsoft.mybatch.config.postgres;
 
+import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 
+@Slf4j
 public class GegevensProcessor implements ItemProcessor<Gegeven, BeschikkingsBevoegdheid> {
-    private static final Logger logger = LoggerFactory.getLogger(GegevensProcessor.class);
 
     @Override
     public BeschikkingsBevoegdheid process(Gegeven gegeven) throws Exception {

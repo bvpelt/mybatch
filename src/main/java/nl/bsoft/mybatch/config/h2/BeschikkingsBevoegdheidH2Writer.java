@@ -1,21 +1,21 @@
 package nl.bsoft.mybatch.config.h2;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+@Slf4j
 @Configuration
-public class BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> extends HibernateItemWriter<BeschikkingsBevoegdheidH2> {
-    private static final Logger logger = LoggerFactory.getLogger(BeschikkingsBevoegdheidH2Writer.class);
+public @Data
+class BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> extends HibernateItemWriter<BeschikkingsBevoegdheidH2> {
 
     private SessionFactory sessionFactory = null;
     private boolean autoCommit = true;
@@ -38,7 +38,7 @@ public class BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> extends 
             throw new MappingException("De sessionFactory moet toegewezen zijn voordat geschreven kan worden!");
         }
 
-        logger.info("autoCommit set to: {}", autoCommit);
+        log.info("autoCommit set to: {}", autoCommit);
 
         if (autoCommit) {
             final Transaction tx = this.sessionFactory.getCurrentSession().beginTransaction();

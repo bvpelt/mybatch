@@ -1,10 +1,9 @@
 package nl.bsoft.mybatch.config.postgres;
 
 import liquibase.integration.spring.SpringLiquibase;
+import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
 import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -21,19 +20,19 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Properties;
 
+@Slf4j
 @Configuration
 @EnableJpaRepositories(
         entityManagerFactoryRef = "entityManagerFactoryPg",
         transactionManagerRef = "transactionManagerPg"
 )
 public class DatabaseConfigPostgres extends DatabaseConfig {
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfigPostgres.class);
 
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.postgres")
     public DataSource dataSourcePg() {
-        logger.debug("Get primary datasource");
+        log.debug("Get primary datasource");
         return DataSourceBuilder.create().build();
     }
 
@@ -52,7 +51,7 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
     @Bean
     @Primary
     public PlatformTransactionManager transactionManagerPg() {
-        logger.debug("Get primary transactionManager");
+        log.debug("Get primary transactionManager");
         return new JpaTransactionManager(entityManagerFactoryPg().getObject());
     }
 
@@ -72,8 +71,8 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
         return factoryBean;
     }
 
-    @Bean(name = "sfPostgres", destroyMethod = "")
-    public SessionFactory getSessionFactory() throws SQLException {
+    @Bean
+    public SessionFactory sfPostgres() throws SQLException {
         return entityManagerFactoryPg().getObject().unwrap(SessionFactory.class);
     }
 

@@ -1,8 +1,7 @@
 package nl.bsoft.mybatch.config.security;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -10,14 +9,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 
+@Slf4j
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
 
     @SuppressWarnings("deprecation")
     @Bean
     public static NoOpPasswordEncoder passwordEncoder() {
-        logger.info("Created passwordEncoder()");
+        log.info("Created passwordEncoder()");
         return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
     }
 
@@ -27,7 +26,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .withUser("testuser").password("12345").roles("USER").and()
                 .withUser("admin").password("geheim").roles("USER", "ADMIN");
 
-        logger.info("Configured in memory security");
+        log.info("Configured in memory security");
     }
 
     @Override
@@ -39,7 +38,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().httpBasic();
         httpSecurity.csrf().disable();
         httpSecurity.headers().frameOptions().disable();
-        logger.info("Configured httpsecurity");
+        log.info("Configured httpsecurity");
     }
 
 }

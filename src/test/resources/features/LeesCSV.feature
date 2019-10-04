@@ -1,15 +1,28 @@
 #language:nl
-#
-#
-# Controleer lezen van csv file
-Functionaliteit: Lees uit csv files
 
+Functionaliteit: Lees uit csv files
+  Gegevens worden uit csv file gelezen
+  Geconverteerd naar csv java object
+  Daarna wordt csv java object geconverteerd naar database java object
+  Database java object wordt in database vastgelegd
+
+  #
+  # Initialiseer de database
+  # Lees gegevens uit csv input bestand
+  # Skip errors tijdens lezen uit csv bestand
+  # Leg alle gelezen gegevens vast in de database
+  #
   Scenario: Lees aantal entries uit uit csv file
     Gegeven database is geinitialiseerd
     En inputbestand "Beschikkingsbevoegdheid.csv" bestaat op classpath
     Als de gegevens gelezen zijn uit bestand met skip "Beschikkingsbevoegdheid.csv"
     Dan zijn er 9 gegevens vastgelegd
 
+  #
+  # Initialiseer de database
+  # Verwerk de csv naar postgres job en skip error, voor bestand zonder fouten
+  # Controleer dat alle gegevens uit input vastgelegd zijn
+  #
   Scenario: Voer verwerking uit op Beschikkingsbevoegdheid.csv skip
     Gegeven database is geinitialiseerd
     Als job "csvtopostgresskip" met success gedraaid heeft voor bestand "Beschikkingsbevoegdheid.csv"

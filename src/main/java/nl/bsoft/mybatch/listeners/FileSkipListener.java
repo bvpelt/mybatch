@@ -1,4 +1,4 @@
-package nl.bsoft.mybatch.utils;
+package nl.bsoft.mybatch.listeners;
 
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;

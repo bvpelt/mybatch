@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Entity(name = "BESCHIKKINGSBEVOEGDHEIDH2")
 @Table(name = "BESCHIKKINGSBEVOEGDHEIDH2")
-public  @Data
+public @Data
 class BeschikkingsBevoegdheidH2 {
     @Id
     @Column(name = "ID")
