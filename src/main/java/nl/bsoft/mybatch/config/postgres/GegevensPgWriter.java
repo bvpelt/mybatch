@@ -1,27 +1,26 @@
 package nl.bsoft.mybatch.config.postgres;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.MappingException;
+import nl.bsoft.mybatch.config.postgres.repo.BeschikkingsBevoegdheidRepo;
+import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Slf4j
 @Configuration
 public
-class GegevensPgWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter<BeschikkingsBevoegdheid> {
+class GegevensPgWriter<S> extends HibernateItemWriter<S> {
 
     private SessionFactory sessionFactory = null;
 
-    @Getter
-    @Setter
-    private boolean autoCommit = true;
+    @Autowired
+    private BeschikkingsBevoegdheidRepo beschikkingsBevoegdheidRepo;
 
     @Autowired
     public GegevensPgWriter(final SessionFactory sfPostgres) {
@@ -29,27 +28,12 @@ class GegevensPgWriter<BeschikkingsBevoegdheid> extends HibernateItemWriter<Besc
         this.sessionFactory = sfPostgres;
     }
 
+    @Transactional(transactionManager = "transactionManagerPg", propagation = Propagation.REQUIRED)
     @Override
-    public void write(final List<? extends BeschikkingsBevoegdheid> items) {
-
-        if (sessionFactory == null) {
-            throw new MappingException("De sessionFactory moet toegewezen zijn voordat geschreven kan worden!");
-        }
-
-        log.info("autoCommit set to: {}", autoCommit);
-
-        if (autoCommit) {
-            final Transaction tx = this.sessionFactory.getCurrentSession().beginTransaction();
-            try {
-                super.doWrite(this.sessionFactory, items);
-                tx.commit();
-            } catch (final Exception e) {
-                tx.rollback();
-                log.error("Error during writing, exception: {}", e);
-                throw new RuntimeException(e);
-            }
-        } else {
-            super.write(items);
+    public void write(final List<? extends S> items) {
+        for (S item : items) {
+            BeschikkingsBevoegdheid i = (BeschikkingsBevoegdheid) item;
+            beschikkingsBevoegdheidRepo.save(i);
         }
     }
 

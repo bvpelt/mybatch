@@ -31,6 +31,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+import org.springframework.transaction.interceptor.RuleBasedTransactionAttribute;
+import org.springframework.transaction.interceptor.TransactionAttribute;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,6 +58,9 @@ class BatchPg {
 
     @Autowired
     private StepBuilderFactory stepBuilder;
+
+    @Autowired
+    private PlatformTransactionManager transactionManagerPg;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -81,6 +91,22 @@ class BatchPg {
                 .incrementer(new RunIdIncrementer())
                 .start(fileToPostgresStepLimit)
                 .build();
+    }
+
+    public TransactionAttribute transactionAttribute() {
+        RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+        rbta.setIsolationLevel(TransactionDefinition.ISOLATION_DEFAULT);
+        rbta.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+
+        return rbta;
+    }
+
+    public TransactionAttribute defTransAttr() {
+        DefaultTransactionAttribute attribute = new DefaultTransactionAttribute();
+        attribute.setPropagationBehavior(Propagation.REQUIRED.value());
+        attribute.setIsolationLevel(Isolation.DEFAULT.value());
+
+        return attribute;
     }
 
     @Bean
@@ -114,7 +140,7 @@ class BatchPg {
     public Step fileToPostgresStepSkip(ItemReader<Gegeven> csvItemReader,
                                        ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
                                        ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
-        MyStepListener<Gegeven,BeschikkingsBevoegdheid> ms = new MyStepListener<Gegeven, BeschikkingsBevoegdheid>();
+        MyStepListener<Gegeven, BeschikkingsBevoegdheid> ms = new MyStepListener<Gegeven, BeschikkingsBevoegdheid>();
         return stepBuilder.get("fileToPostgresStep")
                 .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
                 .reader(csvItemReader(WILL_BE_INJECTED))
