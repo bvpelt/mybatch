@@ -3,26 +3,28 @@ package nl.bsoft.mybatch.listeners;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.bsoft.mybatch.csv.Gegeven;
-import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
+import org.springframework.batch.core.JobParameter;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepListener;
 import org.springframework.batch.core.annotation.*;
 import org.springframework.batch.core.scope.context.ChunkContext;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * See https://docs.spring.io/spring-batch/trunk/apidocs/org/springframework/batch/core/listener/StepListenerSupport.html
  * vor documentation of step listener interface
- *
- * T is the source type in a step definition
- * S is the destination type in a step definition
+ * <p>
+ * INPUT is the source type in a step definition
+ * OUTPUT is the destination type in a step definition
  */
 
 @Slf4j
 @NoArgsConstructor
 public @Data
-class MyStepListener<T, S>  {
+class MyStepListener<INPUT, OUTPUT> implements StepListener {
 
     private StepExecution stepExecution;
 
@@ -30,6 +32,11 @@ class MyStepListener<T, S>  {
     public void beforeStep(final StepExecution stepExecution) {
         this.stepExecution = stepExecution;
         log.debug("01 Step before: {} started at: {} ", stepExecution.getStepName(), stepExecution.getStartTime().toString());
+        JobParameters jobParameters = this.stepExecution.getJobParameters();
+        Map<String, JobParameter> params = jobParameters.getParameters();
+        params.forEach((k, v) -> {
+            log.debug("01 Step before - Parameter: {}, value: {}", k, v);
+        });
     }
 
     @BeforeChunk
@@ -43,7 +50,7 @@ class MyStepListener<T, S>  {
     }
 
     @AfterRead
-    public void afterRead(final T item) {
+    public void afterRead(final INPUT item) {
         log.debug("04 Step after read item: {} ", item.toString());
         if (stopConditionsMet()) {
             this.stepExecution.setTerminateOnly();
@@ -61,51 +68,52 @@ class MyStepListener<T, S>  {
     }
 
     @BeforeProcess
-    public void beforeProcess(final T  item) {
+    public void beforeProcess(final INPUT item) {
         log.debug("07 Step before process of item: {}", item.toString());
     }
 
     @AfterProcess
     public void afterProcess(
-            final T  item, final S result) {
+            final INPUT item, final OUTPUT result) {
         log.debug("08 Step after process: {}", stepExecution.getStepName());
     }
 
     @OnProcessError
-    public void onProcessError(final T  item, Exception e) {
+    public void onProcessError(final INPUT item, Exception e) {
         log.debug("09 Step after process error: {}", e.getMessage());
     }
 
     @OnSkipInProcess
-    public void onSkipInProcess(final T item, final Throwable t) {
+    public void onSkipInProcess(final INPUT item, final Throwable t) {
         log.debug("10 Step after skip in proces - item: {}, exception: {}", item.toString(), t.getMessage());
     }
 
     @BeforeWrite
-    public void beforeWrite(final List<? extends S > items) {
+    public void beforeWrite(final List<? extends OUTPUT> items) {
         log.debug("11 Step before write of {} items", items.size());
-        for (S item: items) {
-            log.debug("11 Step before write of item: {}", item.toString());
-        }
+        items.forEach((i) -> {
+            log.debug("11 Step before write of item: {}", i.toString());
+        });
     }
 
     @AfterWrite
-    public void afterWrite(final List<? extends S>  items) {
+    public void afterWrite(final List<? extends OUTPUT> items) {
         log.debug("12 Step after write of {} items", items.size());
-        for (S item: items) {
-            log.debug("12 Step after write of item: {}", item.toString());
-        }
+        items.forEach((i) -> {
+            log.debug("12 Step after write of item: {}", i.toString());
+        });
     }
 
     @OnWriteError
-    public void onWriteError(final Exception exception, final List<? extends S> items) {
+    public void onWriteError(final Exception exception, final List<? extends OUTPUT> items) {
         log.debug("13 Step on write error of {} items with exception: {}", items.size(), exception.getMessage());
-        for (S item: items) {
-            log.debug("13 Step on write error of item: {}", item.toString());
-        }
+        items.forEach((i) -> {
+            log.debug("13 Step on write error of item: {}", i.toString());
+        });
     }
+
     @OnSkipInWrite
-    public void onSkipInWrite(final S item, final Throwable t) {
+    public void onSkipInWrite(final OUTPUT item, final Throwable t) {
         log.debug("14 Step skip in write on item: {}, exception: {}", item.toString(), t.getMessage());
     }
 

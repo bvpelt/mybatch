@@ -51,7 +51,11 @@ public @Data
 class BatchPg {
     private static final String WILL_BE_INJECTED = null;
     private final int DEFAULT_CHUNKSIZE = 10;
+    private final int NUMBER_FILE_EXCEPTIONS_TO_SKIP = 2;
+    private final int DEFAULT_TIMEOUT = 2;
+
     private int chunkSize;
+
 
     @Autowired
     private JobBuilderFactory jobBuilder;
@@ -97,6 +101,7 @@ class BatchPg {
         RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
         rbta.setIsolationLevel(TransactionDefinition.ISOLATION_DEFAULT);
         rbta.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        rbta.setTimeout(DEFAULT_TIMEOUT);
 
         return rbta;
     }
@@ -150,6 +155,8 @@ class BatchPg {
                 .skip(FlatFileParseException.class)
                 .processor(processor)
                 .writer(gegevensWriter)
+                .transactionManager(transactionManagerPg)
+                .transactionAttribute(transactionAttribute())
                 .build();
     }
 
@@ -200,9 +207,10 @@ class BatchPg {
 
     @Bean
     public ExceptionLimitSkipPolicy fileExceptionSet() {
+
         Map<Class<? extends Throwable>, Boolean> skippableExceptions = new HashMap<Class<? extends Throwable>, Boolean>();
         skippableExceptions.put(FlatFileParseException.class, true);
-        return new ExceptionLimitSkipPolicy(2, skippableExceptions);
+        return new ExceptionLimitSkipPolicy(NUMBER_FILE_EXCEPTIONS_TO_SKIP, skippableExceptions);
     }
 
     @Bean

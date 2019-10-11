@@ -28,17 +28,31 @@ Functionaliteit: Lees uit csv files
     Als job "csvtopostgresskip" met success gedraaid heeft voor bestand "Beschikkingsbevoegdheid.csv"
     Dan zijn er 9 gegevens vastgelegd
 
-
+  #
+  # Initialiseer de database
+  # Verwerk de csv naar postgres job en skip error, voor bestand met 1 fout
+  # Controleer dat alle gegevens uit input vastgelegd zijn
+  #
   Scenario: Voer verwerking uit met 1 fout in invoerbestand met 10 records skip
     Gegeven database is geinitialiseerd
     Als job "csvtopostgresskip" met success gedraaid heeft voor bestand "BeschikkingF01.csv"
     Dan zijn er 9 gegevens vastgelegd
 
+  #
+  # Initialiseer de database
+  # Verwerk de csv naar postgres job en skip error, voor bestand met 2 fouten
+  # Controleer dat alle gegevens uit input vastgelegd zijn
+  #
   Scenario: Voer verwerking uit met 2 fouten in invoerbestand met 11 records skip
     Gegeven database is geinitialiseerd
     Als job "csvtopostgresskip" met success gedraaid heeft voor bestand "BeschikkingF02.csv"
     Dan zijn er 9 gegevens vastgelegd
 
+  #
+  # Initialiseer de database
+  # Verwerk de csv naar postgres job en skip error, voor bestand met 3 fouten
+  # Controleer dat niets vastgelegd is, default worden 2 fouten toegestaan
+  #
   Scenario: Voer verwerking uit met 3 fouten in invoerbestand met 12 records skip
     Gegeven database is geinitialiseerd
     Als job "csvtopostgresskip" met success gedraaid heeft voor bestand "BeschikkingF03.csv"

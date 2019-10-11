@@ -67,8 +67,8 @@ public class DatabaseConfigH2 extends DatabaseConfig {
         return factoryBean;
     }
 
-    @Bean(name = "sfH2", destroyMethod = "")
-    public SessionFactory getSessionFactory() throws SQLException {
+    @Bean(destroyMethod = "")
+    public SessionFactory sessionFactoryH2() throws SQLException {
         return entityManagerFactoryH2().getObject().unwrap(SessionFactory.class);
     }
 

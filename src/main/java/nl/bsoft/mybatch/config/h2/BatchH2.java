@@ -11,6 +11,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,7 +62,7 @@ class BatchH2 {
     @Bean
     protected Step postgres2H2Step(GegevensPgReader<BeschikkingsBevoegdheid> reader,
                                    BeschikkingsBevoegdheidProcessor processor,
-                                   BeschikkingsBevoegdheidH2Writer<BeschikkingsBevoegdheidH2> writer) {
+                                   HibernateItemWriter<BeschikkingsBevoegdheidH2> writer) {
         return stepBuilder.get("postgres2H2Step")
                 .<BeschikkingsBevoegdheid, BeschikkingsBevoegdheidH2>chunk(chunkSize)
                 .reader(reader)
