@@ -10,7 +10,6 @@ import nl.bsoft.mybatch.listeners.MyStepListener;
 import nl.bsoft.mybatch.utils.ExceptionLimitSkipPolicy;
 import nl.bsoft.mybatch.utils.ExceptionSkipPolicy;
 import nl.bsoft.mybatch.utils.FileUtils;
-import org.hibernate.SessionFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -55,7 +54,6 @@ class BatchPg {
     private final int DEFAULT_TIMEOUT = 2;
 
     private int chunkSize;
-
 
     @Autowired
     private JobBuilderFactory jobBuilder;
@@ -180,7 +178,6 @@ class BatchPg {
                 .build();
     }
 
-
     @Bean
     public ItemReader<Gegeven> gegevensReader() {
         ItemReader<Gegeven> gegevenItemReader = new GegevensCsvReader();
@@ -188,15 +185,7 @@ class BatchPg {
     }
 
     @Bean
-    public ItemWriter<BeschikkingsBevoegdheid> gegevensWriter(SessionFactory sfPostgres) {
-        GegevensPgWriter gegevensPgWriter = new GegevensPgWriter(sfPostgres);
-
-        return gegevensPgWriter;
-    }
-
-    @Bean
     public ItemProcessor<Gegeven, BeschikkingsBevoegdheid> gegevensProcessor() {
-
         return new GegevensProcessor();
     }
 

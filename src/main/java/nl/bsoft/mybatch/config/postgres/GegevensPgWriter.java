@@ -15,9 +15,7 @@ import java.util.List;
 @Slf4j
 @Configuration
 public
-class GegevensPgWriter<S> extends HibernateItemWriter<S> {
-
-    private SessionFactory sessionFactory = null;
+class GegevensPgWriter extends HibernateItemWriter<BeschikkingsBevoegdheid> {
 
     @Autowired
     private BeschikkingsBevoegdheidRepo beschikkingsBevoegdheidRepo;
@@ -25,16 +23,12 @@ class GegevensPgWriter<S> extends HibernateItemWriter<S> {
     @Autowired
     public GegevensPgWriter(final SessionFactory sfPostgres) {
         setSessionFactory(sfPostgres);
-        this.sessionFactory = sfPostgres;
     }
 
     @Transactional(transactionManager = "transactionManagerPg", propagation = Propagation.REQUIRED)
     @Override
-    public void write(final List<? extends S> items) {
-        for (S item : items) {
-            BeschikkingsBevoegdheid i = (BeschikkingsBevoegdheid) item;
-            beschikkingsBevoegdheidRepo.save(i);
-        }
+    public void write(final List<? extends BeschikkingsBevoegdheid> items) {
+        log.debug("Writing {} beschikkingsbevoegdheid", items.size());
+        beschikkingsBevoegdheidRepo.saveAll(items);
     }
-
 }

@@ -7,7 +7,6 @@ import nl.bsoft.mybatch.database.BeschikkingsBevoegdheidH2;
 import org.hibernate.SessionFactory;
 import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,15 +17,12 @@ import java.util.List;
 public @Data
 class BeschikkingsBevoegdheidH2Writer extends HibernateItemWriter<BeschikkingsBevoegdheidH2> {
 
-    private final SessionFactory sessionFactoryH2;
-
     @Autowired
     private BeschikkingsBevoegdheidH2Repo beschikkingsBevoegdheidH2Repo;
 
     @Autowired
     public BeschikkingsBevoegdheidH2Writer(final SessionFactory sessionFactoryH2) {
         super.setSessionFactory(sessionFactoryH2);
-        this.sessionFactoryH2 = sessionFactoryH2;
     }
 
     @Transactional("transactionManagerH2")
