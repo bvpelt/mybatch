@@ -1,12 +1,11 @@
 package nl.bsoft.mybatch.listeners;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepListener;
 import org.springframework.batch.core.annotation.*;
 import org.springframework.batch.core.scope.context.ChunkContext;
 
@@ -22,21 +21,22 @@ import java.util.Map;
  */
 
 @Slf4j
-@NoArgsConstructor
 public @Data
-class MyStepListener<INPUT, OUTPUT> implements StepListener {
+class MyStepListener<INPUT, OUTPUT> {
 
     private StepExecution stepExecution;
 
     @BeforeStep
     public void beforeStep(final StepExecution stepExecution) {
         this.stepExecution = stepExecution;
+
         log.debug("01 Step before: {} started at: {} ", stepExecution.getStepName(), stepExecution.getStartTime().toString());
         JobParameters jobParameters = this.stepExecution.getJobParameters();
         Map<String, JobParameter> params = jobParameters.getParameters();
         params.forEach((k, v) -> {
             log.debug("01 Step before - Parameter: {}, value: {}", k, v);
         });
+
     }
 
     @BeforeChunk
@@ -128,13 +128,14 @@ class MyStepListener<INPUT, OUTPUT> implements StepListener {
     }
 
     @AfterStep
-    public void afterStep(final StepExecution stepExecution) {
+    public ExitStatus afterStep(final StepExecution stepExecution) {
         this.stepExecution = stepExecution;
         log.debug("17 Step after: {} ended with status: {} exit status: {} at: {} ",
                 this.stepExecution.getStepName(),
                 this.stepExecution.getStatus().toString(),
                 this.stepExecution.getExitStatus().toString(),
                 (this.stepExecution.getEndTime() == null ? "(unknown)" : this.stepExecution.getEndTime().toString()));
+        return this.stepExecution.getExitStatus();
     }
 
     private boolean stopConditionsMet() {

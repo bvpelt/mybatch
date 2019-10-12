@@ -13,5 +13,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
         plugin = {"pretty", "html:target/cucumber", "json:target/cucumber.json"})
 @WebAppConfiguration
 public class RunAllTests {
+
 }
 

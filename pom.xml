@@ -65,10 +65,6 @@
         <url>git@github.com:bvpelt/mybatch.git</url>
     </scm>
 
-    <prerequisites>
-        <maven>3.6</maven>
-    </prerequisites>
-
     <properties>
         <asciidoctor.version>1.6.0</asciidoctor.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
