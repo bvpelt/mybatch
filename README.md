@@ -54,3 +54,6 @@ See
 
 ###
 - https://stackoverflow.com/questions/6078009/how-to-get-access-to-job-parameters-from-itemreader-in-spring-batch
+
+# Profiling
+- https://www.jetbrains.com/help/idea/cpu-profiler.html
