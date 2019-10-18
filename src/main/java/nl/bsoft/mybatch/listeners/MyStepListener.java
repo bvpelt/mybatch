@@ -3,12 +3,17 @@ package nl.bsoft.mybatch.listeners;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nl.bsoft.mybatch.config.StepListenerConfig;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepListener;
 import org.springframework.batch.core.annotation.*;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -22,36 +27,52 @@ import java.util.Map;
  */
 
 @Slf4j
-@NoArgsConstructor
+@Component
 public @Data
 class MyStepListener<INPUT, OUTPUT> implements StepListener {
 
     private StepExecution stepExecution;
 
+    private StepListenerConfig stepListenerConfig;
+
+    @Autowired
+    public MyStepListener(final StepListenerConfig stepListenerConfig)
+    {
+        this.stepListenerConfig = stepListenerConfig;
+    }
+
     @BeforeStep
     public void beforeStep(final StepExecution stepExecution) {
         this.stepExecution = stepExecution;
-        log.debug("01 Step before: {} started at: {} ", stepExecution.getStepName(), stepExecution.getStartTime().toString());
-        JobParameters jobParameters = this.stepExecution.getJobParameters();
-        Map<String, JobParameter> params = jobParameters.getParameters();
-        params.forEach((k, v) -> {
-            log.debug("01 Step before - Parameter: {}, value: {}", k, v);
-        });
+        if (stepListenerConfig.isLogBeforeStep()) {
+            log.debug("01 Step before: {} started at: {} ", stepExecution.getStepName(), stepExecution.getStartTime().toString());
+            JobParameters jobParameters = this.stepExecution.getJobParameters();
+            Map<String, JobParameter> params = jobParameters.getParameters();
+            params.forEach((k, v) -> {
+                log.debug("01 Step before - Parameter: {}, value: {}", k, v);
+            });
+        }
     }
 
     @BeforeChunk
     public void beforeChunk(final ChunkContext context) {
-        log.debug("02 Step before chunck");
+        if (stepListenerConfig.isLogBeforeChunk()) {
+            log.debug("02 Step before chunck");
+        }
     }
 
     @BeforeRead
     public void beforeRead() {
-        log.debug("03 Step before read");
+        if (stepListenerConfig.isLogBeforeRead()) {
+            log.debug("03 Step before read");
+        }
     }
 
     @AfterRead
     public void afterRead(final INPUT item) {
-        log.debug("04 Step after read item: {} ", item.toString());
+        if (stepListenerConfig.isLogAfterRead()) {
+            log.debug("04 Step after read item: {} ", item.toString());
+        }
         if (stopConditionsMet()) {
             this.stepExecution.setTerminateOnly();
         }
@@ -59,82 +80,108 @@ class MyStepListener<INPUT, OUTPUT> implements StepListener {
 
     @OnReadError
     public void onReadError(final Exception ex) {
-        log.debug("05 Step read error: {}", ex.getMessage());
+        if (stepListenerConfig.isLogReadError()) {
+            log.debug("05 Step read error: {}", ex.getMessage());
+        }
     }
 
     @OnSkipInRead
     public void onSkipInRead(final Throwable t) {
-        log.debug("06 Step after read skip on exception: {}", t.getMessage());
+        if (stepListenerConfig.isLogSkipInRead()) {
+            log.debug("06 Step after read skip on exception: {}", t.getMessage());
+        }
     }
 
     @BeforeProcess
     public void beforeProcess(final INPUT item) {
-        log.debug("07 Step before process of item: {}", item.toString());
+        if (stepListenerConfig.isLogBeforeProcess()) {
+            log.debug("07 Step before process of item: {}", item.toString());
+        }
     }
 
     @AfterProcess
     public void afterProcess(
             final INPUT item, final OUTPUT result) {
-        log.debug("08 Step after process: {}", stepExecution.getStepName());
+        if (stepListenerConfig.isLogAfterProcess()) {
+            log.debug("08 Step after process: {}", stepExecution.getStepName());
+        }
     }
 
     @OnProcessError
     public void onProcessError(final INPUT item, Exception e) {
-        log.debug("09 Step after process error: {}", e.getMessage());
+        if (stepListenerConfig.isLogProcessError()) {
+            log.debug("09 Step after process error: {}", e.getMessage());
+        }
     }
 
     @OnSkipInProcess
     public void onSkipInProcess(final INPUT item, final Throwable t) {
-        log.debug("10 Step after skip in proces - item: {}, exception: {}", item.toString(), t.getMessage());
+        if (stepListenerConfig.isLogSkipInProcess()) {
+            log.debug("10 Step after skip in proces - item: {}, exception: {}", item.toString(), t.getMessage());
+        }
     }
 
     @BeforeWrite
     public void beforeWrite(final List<? extends OUTPUT> items) {
-        log.debug("11 Step before write of {} items", items.size());
-        items.forEach((i) -> {
-            log.debug("11 Step before write of item: {}", i.toString());
-        });
+        if (stepListenerConfig.isLogBeforeWrite()) {
+            log.debug("11 Step before write of {} items", items.size());
+            items.forEach((i) -> {
+                log.debug("11 Step before write of item: {}", i.toString());
+            });
+        }
     }
 
     @AfterWrite
     public void afterWrite(final List<? extends OUTPUT> items) {
-        log.debug("12 Step after write of {} items", items.size());
-        items.forEach((i) -> {
-            log.debug("12 Step after write of item: {}", i.toString());
-        });
+        if (stepListenerConfig.isLogAfterWrite()) {
+            log.debug("12 Step after write of {} items", items.size());
+            items.forEach((i) -> {
+                log.debug("12 Step after write of item: {}", i.toString());
+            });
+        }
     }
 
     @OnWriteError
     public void onWriteError(final Exception exception, final List<? extends OUTPUT> items) {
-        log.debug("13 Step on write error of {} items with exception: {}", items.size(), exception.getMessage());
-        items.forEach((i) -> {
-            log.debug("13 Step on write error of item: {}", i.toString());
-        });
+        if (stepListenerConfig.isLogWriteError()) {
+            log.debug("13 Step on write error of {} items with exception: {}", items.size(), exception.getMessage());
+            items.forEach((i) -> {
+                log.debug("13 Step on write error of item: {}", i.toString());
+            });
+        }
     }
 
     @OnSkipInWrite
     public void onSkipInWrite(final OUTPUT item, final Throwable t) {
-        log.debug("14 Step skip in write on item: {}, exception: {}", item.toString(), t.getMessage());
+        if (stepListenerConfig.isLogSkipInWrite()) {
+            log.debug("14 Step skip in write on item: {}, exception: {}", item.toString(), t.getMessage());
+        }
     }
 
     @AfterChunk
     public void afterChunk(final ChunkContext context) {
-        log.debug("15 Step after chunck, is complete: {}", context.isComplete());
+        if (stepListenerConfig.isLogAfterChunk()) {
+            log.debug("15 Step after chunck, is complete: {}", context.isComplete());
+        }
     }
 
     @AfterChunkError
     public void afterChunkError(final ChunkContext context) {
-        log.debug("16 Step after chunck error, is complete: {}", context.isComplete());
+        if (stepListenerConfig.isLogChunkError()) {
+            log.debug("16 Step after chunck error, is complete: {}", context.isComplete());
+        }
     }
 
     @AfterStep
     public void afterStep(final StepExecution stepExecution) {
         this.stepExecution = stepExecution;
-        log.debug("17 Step after: {} ended with status: {} exit status: {} at: {} ",
-                this.stepExecution.getStepName(),
-                this.stepExecution.getStatus().toString(),
-                this.stepExecution.getExitStatus().toString(),
-                (this.stepExecution.getEndTime() == null ? "(unknown)" : this.stepExecution.getEndTime().toString()));
+        if (stepListenerConfig.isLogAfterStep()) {
+            log.debug("17 Step after: {} ended with status: {} exit status: {} at: {} ",
+                    this.stepExecution.getStepName(),
+                    this.stepExecution.getStatus().toString(),
+                    this.stepExecution.getExitStatus().toString(),
+                    (this.stepExecution.getEndTime() == null ? "(unknown)" : this.stepExecution.getEndTime().toString()));
+        }
     }
 
     private boolean stopConditionsMet() {

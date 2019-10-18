@@ -12,6 +12,7 @@ import nl.bsoft.mybatch.utils.ExceptionSkipPolicy;
 import nl.bsoft.mybatch.utils.FileUtils;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepListener;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -66,6 +67,9 @@ class BatchPg {
 
     @Autowired
     private ResourceLoader resourceLoader;
+
+    @Autowired
+    private StepListener stepListener;
 
     public BatchPg() {
         this.chunkSize = DEFAULT_CHUNKSIZE;
@@ -143,11 +147,11 @@ class BatchPg {
     public Step fileToPostgresStepSkip(ItemReader<Gegeven> csvItemReader,
                                        ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
                                        ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
-        MyStepListener<Gegeven, BeschikkingsBevoegdheid> ms = new MyStepListener<Gegeven, BeschikkingsBevoegdheid>();
+       // MyStepListener<Gegeven, BeschikkingsBevoegdheid> ms = new MyStepListener<Gegeven, BeschikkingsBevoegdheid>();
         return stepBuilder.get("fileToPostgresStep")
                 .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
                 .reader(csvItemReader(WILL_BE_INJECTED))
-                .listener(ms)
+                .listener(stepListener)
                 .faultTolerant()
                 .skipLimit(2) // 2 parsing exceptions are ok
                 .skip(FlatFileParseException.class)
