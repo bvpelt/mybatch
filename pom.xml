@@ -65,20 +65,23 @@
         <url>git@github.com:bvpelt/mybatch.git</url>
     </scm>
 
-    <prerequisites>
-        <maven>3.6</maven>
-    </prerequisites>
-
     <properties>
         <asciidoctor.version>1.6.0</asciidoctor.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <cucumber.version>1.2.5</cucumber.version>
+        <git-commit-id-plugin.version>3.0.1</git-commit-id-plugin.version>
         <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
+        <decodecentric.version>2.1.6</decodecentric.version>
+        <dokbkx.version>2.0.17</dokbkx.version>
+        <lombok.version>1.18.10</lombok.version>
+        <!--
         <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
         <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
         <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
+        <maven-surefile-plugin.version>2.22.2</maven-surefile-plugin.version>
+        -->
         <spring-boot.version>2.1.7.RELEASE</spring-boot.version>
         <jacoco.it.execution.data.file>${project.build.directory}/jacoco-it.exec</jacoco.it.execution.data.file>
         <jacoco.ut.execution.data.file>${project.build.directory}/jacoco-ut.exec</jacoco.ut.execution.data.file>
@@ -90,7 +93,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
+                <!--
                 <version>${maven-project-info-reports-plugin.version}</version>
+                -->
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -161,7 +166,7 @@
         <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-client</artifactId>
-            <version>2.1.6</version>
+            <version>${decodecentric.version}</version>
         </dependency>
 
         <dependency>
@@ -172,7 +177,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
+            <version>${lombok.version}</version>
         </dependency>
 
         <!-- database -->
@@ -245,7 +250,9 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
+                    <!--
                     <version>${maven-site-plugin.version}</version>
+                    -->
                     <dependencies>
                         <dependency><!-- add Asciidoctor Doxia Parser Module -->
                             <groupId>org.asciidoctor</groupId>
@@ -272,12 +279,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <!--
                 <version>${maven-dependency-plugin.version}</version>
+                -->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <!--
+                <version>${maven-surefire-plugin.version}</version>
+                -->
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
@@ -357,19 +368,6 @@
                             </attributes>
                         </configuration>
                     </execution>
-                    <!--
-                    <execution>
-                        <id>output-docbook</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>process-asciidoc</goal>
-                        </goals>
-                        <configuration>
-                            <backend>docbook</backend>
-                            <doctype>book</doctype>
-                        </configuration>
-                    </execution>
--->
                     <execution>
                         <id>asciidoc-to-docbook</id>
                         <phase>generate-resources</phase>
@@ -388,16 +386,10 @@
                         </configuration>
                     </execution>
                 </executions>
-
-
                 <configuration>
                     <sourceDirectory>src/main/asciidoc</sourceDirectory>
                     <outputDirectory>target/docs/asciidoc</outputDirectory>
                     <sourceHighlighter>coderay</sourceHighlighter>
-                    <!--
-                    <backend>html5</backend>
-                    <doctype>book</doctype>
-                    -->
                     <attributes>
                         <sourcedir>${project.build.sourceDirectory}</sourcedir>
                         <!--
@@ -408,16 +400,14 @@
                         -->
                         <source-highlighter>coderay</source-highlighter>
                         <coderay-css>style</coderay-css>
-
                     </attributes>
                 </configuration>
             </plugin>
 
-
             <plugin>
                 <groupId>com.agilejava.docbkx</groupId>
                 <artifactId>docbkx-maven-plugin</artifactId>
-                <version>2.0.17</version>
+                <version>${dokbkx.version}</version>
                 <executions>
                     <execution>
                         <id>generate-pdf</id>
@@ -437,6 +427,26 @@
                     <highlightSource>1</highlightSource>
                     <hyphenate>true</hyphenate>
                     <hyphenateVerbatim>true</hyphenateVerbatim>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>${git-commit-id-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <verbose>true</verbose>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <injectAllReactorProjects>true</injectAllReactorProjects>
                 </configuration>
             </plugin>
         </plugins>
