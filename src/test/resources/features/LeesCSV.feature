@@ -83,3 +83,4 @@ Functionaliteit: Lees uit csv files
     Gegeven database is geinitialiseerd
     Als job "csvtopostgreslimit" met success gedraaid heeft voor bestand "KadastraleGemeente.csv"
     Dan zijn er 40 gegevens vastgelegd
+

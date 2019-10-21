@@ -445,8 +445,18 @@
                 </executions>
                 <configuration>
                     <verbose>true</verbose>
+
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.basedir}/git.properties</generateGitPropertiesFilename>
+
                     <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
                     <injectAllReactorProjects>true</injectAllReactorProjects>
+                    <gitDescribe>
+                        <skip>false</skip>
+                        <always>true</always>
+                        <abbrev>8</abbrev>
+                        <forceLongFormat>false</forceLongFormat>
+                    </gitDescribe>
                 </configuration>
             </plugin>
         </plugins>

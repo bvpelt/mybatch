@@ -35,4 +35,5 @@ public class MybatchApplication extends SpringBootServletInitializer {
         log.info("Bezig met configureren...");
         return application.sources(APP_CLASS);
     }
+    
 }

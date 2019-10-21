@@ -1,6 +1,7 @@
 package nl.bsoft.mybatch.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.bsoft.mybatch.config.GitProperties;
 import nl.bsoft.mybatch.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,40 @@ public class JobsController {
 
         String result = startCsvJob(fileToPostgresSkipJob, fileName);
         return result;
+    }
+
+    @GetMapping("/gitinfo")
+    public String gitinfo() throws Exception {
+        logger.debug("Start gitinfo");
+
+        GitProperties gitProperties = new GitProperties();
+
+        StringBuffer result = new StringBuffer();
+        result.append(GitProperties.BRANCH + ": " + gitProperties.getBranch());
+        result.append("\n" + GitProperties.BUILD_TIME + ": " + gitProperties.getBuildTime());
+        result.append("\n" + GitProperties.BUILD_USER_EMAIL + ": " + gitProperties.getBuildUserEmail());
+        result.append("\n" + GitProperties.BUILD_USER_NAME + ": " + gitProperties.getBuildUserName());
+        result.append("\n" + GitProperties.BUILD_VERSION + ": " + gitProperties.getBuildVersion());
+        result.append("\n" + GitProperties.CLOSEST_TAG_COMMIT_COUNT + ": " + gitProperties.getClosestTagCommitCount());
+        result.append("\n" + GitProperties.CLOSEST_TAG_NAME + ": " + gitProperties.getClosestTagName());
+        result.append("\n" + GitProperties.COMMIT_ID + ": " + gitProperties.getCommitId());
+        result.append("\n" + GitProperties.COMMIT_ID_ABBREV + ": " + gitProperties.getCommitIdAbbrev());
+        result.append("\n" + GitProperties.COMMIT_ID_DESCRIBE + ": " + gitProperties.getCommitIdDescribe());
+        result.append("\n" + GitProperties.COMMIT_ID_DESCRIBE_SHORT + ": " + gitProperties.getCommitIdDescribeShort());
+        result.append("\n" + GitProperties.COMMIT_MESSAGE_FULL + ": " + gitProperties.getCommitMessageFull());
+        result.append("\n" + GitProperties.COMMIT_MESSAGE_SHORT + ": " + gitProperties.getCommitMessageShort());
+        result.append("\n" + GitProperties.COMMIT_TIME + ": " + gitProperties.getCommitTime());
+        result.append("\n" + GitProperties.COMMIT_USER_EMAIL + ": " + gitProperties.getCommitUserEmail());
+        result.append("\n" + GitProperties.COMMIT_USER_NAME + ": " + gitProperties.getCommitUserName());
+        result.append("\n" + GitProperties.DIRTY + ": " + gitProperties.getDirty());
+        result.append("\n" + GitProperties.HOST + ": " + gitProperties.getHost());
+        result.append("\n" + GitProperties.LOCAL_BRANCH_AHEAD + ": " + gitProperties.getLocalBranchAhead());
+        result.append("\n" + GitProperties.LOCAL_BRANCH_BEHIND + ": " + gitProperties.getLocalBranchBehind());
+        result.append("\n" + GitProperties.REMOTE_ORIGIN_URL + ": " + gitProperties.getRemoteOriginUrl());
+        result.append("\n" + GitProperties.TAGS + ": " + gitProperties.getTags());
+        result.append("\n" + GitProperties.TOTAL_COMMIT_COUNT + ": " + gitProperties.getTotalCommitCount());
+
+        return result.toString();
     }
 
     @GetMapping("/csvtopostgreslimit")
