@@ -38,4 +38,5 @@ public class MybatchApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder application) {
         return application.sources(APP_CLASS);
     }
+    
 }

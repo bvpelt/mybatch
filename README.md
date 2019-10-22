@@ -25,6 +25,23 @@ See http://www.javaoptimum.com/how-to-configure-multiple-datasources-with-spring
 Default wordt gebruik gemaakt van:
 - username: user
 - password generated
+# Git plugin
+To make it work on ubuntu use
+```bash
+export GIT_SSH=/usr/bin/ssh
+```
+otherwise an error occurs
+```
+[ERROR] Failed to perform fetch
+Failed to perform fetch
+
+
+org.eclipse.jgit.api.errors.TransportException: git@github.com:bvpelt/mybatch.git: USERAUTH fail
+    at org.eclipse.jgit.api.FetchCommand.call (FetchCommand.java:254)
+    at pl.project13.maven.git.JGitProvider.fetch (JGitProvider.java:352)
+    at pl.project13.maven.git.JGitProvider.getAheadBehind (JGitProvider.java:339)
+    at pl.project13.maven.git.GitDataProvider.lambda$loadGitData$17 (GitDataProvider.java:174)
+```
 
 # Logback
 - patterns https://logback.qos.ch/manual/layouts.html
@@ -56,3 +73,6 @@ See
 
 ###
 - https://stackoverflow.com/questions/6078009/how-to-get-access-to-job-parameters-from-itemreader-in-spring-batch
+
+# Profiling
+- https://www.jetbrains.com/help/idea/cpu-profiler.html
