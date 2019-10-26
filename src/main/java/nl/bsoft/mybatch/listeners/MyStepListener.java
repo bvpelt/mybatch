@@ -2,18 +2,12 @@ package nl.bsoft.mybatch.listeners;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.ExitStatus;
 import nl.bsoft.mybatch.config.StepListenerConfig;
-import org.springframework.batch.core.JobParameter;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepListener;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.annotation.*;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -36,8 +30,7 @@ class MyStepListener<INPUT, OUTPUT> implements StepListener {
     private StepListenerConfig stepListenerConfig;
 
     @Autowired
-    public MyStepListener(final StepListenerConfig stepListenerConfig)
-    {
+    public MyStepListener(final StepListenerConfig stepListenerConfig) {
         this.stepListenerConfig = stepListenerConfig;
     }
 
