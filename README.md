@@ -20,6 +20,7 @@ See http://www.javaoptimum.com/how-to-configure-multiple-datasources-with-spring
 
 # Spring Batch
 - https://docs.spring.io/spring-batch/4.0.x/reference/html/job.html#javaConfig
+- examples of the book springboot in action https://github.com/acogoluegnes/Spring-Batch-in-Action
 
 # Spring Security
 Default wordt gebruik gemaakt van:
@@ -42,6 +43,12 @@ org.eclipse.jgit.api.errors.TransportException: git@github.com:bvpelt/mybatch.gi
     at pl.project13.maven.git.JGitProvider.getAheadBehind (JGitProvider.java:339)
     at pl.project13.maven.git.GitDataProvider.lambda$loadGitData$17 (GitDataProvider.java:174)
 ```
+# Using JobLauncher
+The application has a buildin general interface to launch a job, the joblauncher.
+Syntax: http://localhost:8080/joblauncher?job=<name>&(<paramname>=<paramvalue)*
+
+Example:
+http://localhost:8080/joblauncher?job=fileToPostgresLimitJob&fileName=BeschikkingF01.csv
 
 # Logback
 - patterns https://logback.qos.ch/manual/layouts.html

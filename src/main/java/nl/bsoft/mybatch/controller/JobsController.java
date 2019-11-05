@@ -10,16 +10,18 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 @Slf4j
@@ -27,20 +29,67 @@ import java.util.List;
 public class JobsController {
     private static final Logger logger = LoggerFactory.getLogger(JobsController.class);
 
-    @Autowired
-    JobLauncher jobLauncher;
+    private static final String JOB_PARAM = "job";
 
     @Autowired
-    Job fileToPostgresSkipJob;
+    private JobLauncher jobLauncher;
 
     @Autowired
-    Job fileToPostgresLimitJob;
+    private Job fileToPostgresSkipJob;
 
     @Autowired
-    Job postgres2H2Job;
+    private Job fileToPostgresLimitJob;
 
     @Autowired
-    Job file2H2Job;
+    private Job postgres2H2Job;
+
+    @Autowired
+    private Job file2H2Job;
+
+    /**
+     * @param job,     the name of the job to start
+     * @param request, additional parameters for this job
+     * @throws Exception
+     */
+    @RequestMapping(value = "joblauncher", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void launch(@RequestParam String job,
+                       HttpServletRequest request) throws Exception {
+        JobParametersBuilder builder = extractParameters(request);
+        String jobName = request.getParameter(JOB_PARAM);
+        Job selectedJob = null;
+        switch (jobName) {
+            case "postgres2H2Job":
+                // check parameters
+                selectedJob = postgres2H2Job;
+                break;
+            case "fileToPostgresSkipJob":
+                selectedJob = fileToPostgresSkipJob;
+                break;
+            case "fileToPostgresLimitJob":
+                selectedJob = fileToPostgresLimitJob;
+                break;
+            default:
+                throw new Exception("Job " + jobName + " not known");
+        }
+        jobLauncher.run(
+                selectedJob,
+                builder.toJobParameters()
+        );
+    }
+
+    private JobParametersBuilder extractParameters(
+            HttpServletRequest request) {
+        JobParametersBuilder builder = new JobParametersBuilder();
+        Enumeration<String> paramNames = request.getParameterNames();
+        while (paramNames.hasMoreElements()) {
+            String paramName = paramNames.nextElement();
+            if (!JOB_PARAM.equals(paramName)) {
+                builder.addString(paramName, request.getParameter(paramName));
+            }
+        }
+        return builder;
+    }
 
     @GetMapping("/csvtopostgresskip")
     public String csvtopostgresskip(@RequestParam(value = "fileName") String fileName) throws Exception {
