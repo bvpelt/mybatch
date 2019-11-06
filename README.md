@@ -83,3 +83,13 @@ See
 
 # Profiling
 - https://www.jetbrains.com/help/idea/cpu-profiler.html
+
+# Actuator
+- https://www.callicoder.com/spring-boot-actuator/
+
+see [grafana.md](grafana.md)
+
+Customizing https://docs.spring.io/spring-metrics/docs/current/public/prometheus
+
+
+

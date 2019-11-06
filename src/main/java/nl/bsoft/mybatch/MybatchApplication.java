@@ -1,5 +1,7 @@
 package nl.bsoft.mybatch;
 
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -31,6 +33,7 @@ public class MybatchApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         log.info("Bezig met configureren...van");
+
         SpringApplication.run(APP_CLASS, args);
     }
 

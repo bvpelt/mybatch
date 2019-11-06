@@ -1,5 +1,6 @@
 package nl.bsoft.mybatch.config.postgres;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.MyJobListener;
@@ -70,6 +71,9 @@ class BatchPg {
 
     @Autowired
     private StepListener stepListener;
+
+    @Autowired
+    private MeterRegistry registry;
 
     public BatchPg() {
         this.chunkSize = DEFAULT_CHUNKSIZE;
@@ -190,7 +194,7 @@ class BatchPg {
 
     @Bean
     public ItemProcessor<Gegeven, BeschikkingsBevoegdheid> gegevensProcessor() {
-        return new GegevensProcessor();
+        return new GegevensProcessor(registry);
     }
 
     @Bean
