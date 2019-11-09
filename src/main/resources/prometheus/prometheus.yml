@@ -24,9 +24,5 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: ['HOST_IP:8080']
-
-  - job_name: 'mybatch'
-    metrics_path: '/actuator/metrics/nl.bsoft.mybatch'
-    scrape_interval: 5s
-    static_configs:
-      - targets: ['HOST_IP:8080']
+        labels:
+          nl_bsoft_mybatch: nl_bsoft_mybatch

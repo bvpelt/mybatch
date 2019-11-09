@@ -89,7 +89,10 @@ See
 
 see [grafana.md](grafana.md)
 
-Customizing https://docs.spring.io/spring-metrics/docs/current/public/prometheus
-
+Customizing 
+- https://docs.spring.io/spring-metrics/docs/current/public/prometheus
+- https://blog.autsoft.hu/defining-custom-metrics-in-a-spring-boot-application-using-micrometer/
+- http://micrometer.io/docs/concepts
+- https://metrics.dropwizard.io/3.1.0/manual/servlets/
 
 
