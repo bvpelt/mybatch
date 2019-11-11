@@ -26,3 +26,9 @@ scrape_configs:
       - targets: ['HOST_IP:8080']
         labels:
           nl_bsoft_mybatch: nl_bsoft_mybatch
+
+
+  - job_name: 'spring'
+    metrics_path: '/prometheus'
+    static_configs:
+      - targets: ['HOST_IP:8080']

@@ -72,9 +72,6 @@ class BatchPg {
     @Autowired
     private StepListener stepListener;
 
-    @Autowired
-    private MeterRegistry registry;
-
     public BatchPg() {
         this.chunkSize = DEFAULT_CHUNKSIZE;
     }
@@ -193,8 +190,8 @@ class BatchPg {
     }
 
     @Bean
-    public ItemProcessor<Gegeven, BeschikkingsBevoegdheid> gegevensProcessor() {
-        return new GegevensProcessor(registry);
+    public ItemProcessor<Gegeven, BeschikkingsBevoegdheid> gegevensProcessor(MeterRegistry metrics) {
+        return new GegevensProcessor(metrics);
     }
 
     @Bean
