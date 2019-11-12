@@ -17,14 +17,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public @Data
 class BeschikkingsBevoegdheidProcessor implements ItemProcessor<BeschikkingsBevoegdheid, BeschikkingsBevoegdheidH2> {
-
+/*
     private MeterRegistry metrics;
     private Counter gegevenCounter;
+*/
 
     @Autowired
-    public BeschikkingsBevoegdheidProcessor(MeterRegistry metrics) {
+    public BeschikkingsBevoegdheidProcessor( /* MeterRegistry metrics */) {
+/*
         this.metrics = metrics;
         this.gegevenCounter = metrics.counter(BeschikkingsBevoegdheidProcessor.class.getName(), "aantal");
+
+ */
     }
 
     @Override
@@ -40,7 +44,7 @@ class BeschikkingsBevoegdheidProcessor implements ItemProcessor<BeschikkingsBevo
         beschikkingsBevoegdheidH2.setToelichting(beschikkingsBevoegdheid.getToelichting());
         beschikkingsBevoegdheidH2.setWaarde(beschikkingsBevoegdheid.getWaarde());
 
-        gegevenCounter.increment();
+        //gegevenCounter.increment();
 
         return beschikkingsBevoegdheidH2;
     }

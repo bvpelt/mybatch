@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.metrics.export.prometheus.EnablePrometheusMetrics;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -22,7 +21,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 //@EnableSwagger2
 @Slf4j
 @EnableAsync
-@EnablePrometheusMetrics
 @EnableTransactionManagement
 public class MybatchApplication extends SpringBootServletInitializer {
 

@@ -2,6 +2,7 @@ package nl.bsoft.mybatch.config.postgres;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
@@ -14,12 +15,12 @@ import org.springframework.stereotype.Component;
 public class GegevensProcessor implements ItemProcessor<Gegeven, BeschikkingsBevoegdheid> {
 
     private Counter gegevenCounter;
-    private MeterRegistry metrics;
+    private PrometheusMeterRegistry prometheusRegistry;
 
     @Autowired
-    public GegevensProcessor(MeterRegistry metrics) {
-        this.metrics = metrics;
-        gegevenCounter = metrics.counter(GegevensProcessor.class.getName(), "aantal");
+    public GegevensProcessor(PrometheusMeterRegistry prometheusRegistry) {
+        this.prometheusRegistry = prometheusRegistry;
+        this.gegevenCounter = prometheusRegistry.counter("gegevens", "aantal", "waarde");
     }
 
     @Override

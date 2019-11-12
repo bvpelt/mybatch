@@ -1,6 +1,8 @@
 package nl.bsoft.mybatch.config.postgres;
 
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.MyJobListener;
@@ -72,8 +74,14 @@ class BatchPg {
     @Autowired
     private StepListener stepListener;
 
-    public BatchPg() {
+    private PrometheusMeterRegistry prometheusRegistry;
+    private Counter fileReaderCounter;
+
+    @Autowired
+    public BatchPg(PrometheusMeterRegistry prometheusRegistry) {
         this.chunkSize = DEFAULT_CHUNKSIZE;
+        this.prometheusRegistry = prometheusRegistry;
+        this.fileReaderCounter = this.prometheusRegistry.counter("fileReader", "aantal", "waarde");
     }
 
     @Bean
@@ -141,6 +149,7 @@ class BatchPg {
         itemReader.setLineMapper(lineMapper);
         itemReader.open(new ExecutionContext());
 
+        this.fileReaderCounter.increment();
         return itemReader;
     }
 
@@ -190,8 +199,8 @@ class BatchPg {
     }
 
     @Bean
-    public ItemProcessor<Gegeven, BeschikkingsBevoegdheid> gegevensProcessor(MeterRegistry metrics) {
-        return new GegevensProcessor(metrics);
+    public ItemProcessor<Gegeven, BeschikkingsBevoegdheid> gegevensProcessor(PrometheusMeterRegistry prometheusRegistry) {
+        return new GegevensProcessor(prometheusRegistry);
     }
 
     @Bean
