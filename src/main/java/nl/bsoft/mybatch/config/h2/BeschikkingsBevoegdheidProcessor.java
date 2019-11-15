@@ -2,7 +2,7 @@ package nl.bsoft.mybatch.config.h2;
 
 
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
@@ -12,23 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 
-
 @Slf4j
 @Configuration
 public @Data
 class BeschikkingsBevoegdheidProcessor implements ItemProcessor<BeschikkingsBevoegdheid, BeschikkingsBevoegdheidH2> {
-/*
-    private MeterRegistry metrics;
-    private Counter gegevenCounter;
-*/
+
+    private PrometheusMeterRegistry prometheusRegistry;
+    private Counter beschikkingProcessCounter;
 
     @Autowired
-    public BeschikkingsBevoegdheidProcessor( /* MeterRegistry metrics */) {
-/*
-        this.metrics = metrics;
-        this.gegevenCounter = metrics.counter(BeschikkingsBevoegdheidProcessor.class.getName(), "aantal");
-
- */
+    public BeschikkingsBevoegdheidProcessor(PrometheusMeterRegistry prometheusRegistry) {
+        this.prometheusRegistry = prometheusRegistry;
+        this.beschikkingProcessCounter = this.prometheusRegistry.counter("beschikkingsProcess", "aantal", "waarde");
     }
 
     @Override
@@ -44,7 +39,7 @@ class BeschikkingsBevoegdheidProcessor implements ItemProcessor<BeschikkingsBevo
         beschikkingsBevoegdheidH2.setToelichting(beschikkingsBevoegdheid.getToelichting());
         beschikkingsBevoegdheidH2.setWaarde(beschikkingsBevoegdheid.getWaarde());
 
-        //gegevenCounter.increment();
+        this.beschikkingProcessCounter.increment();
 
         return beschikkingsBevoegdheidH2;
     }

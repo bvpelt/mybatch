@@ -1,5 +1,7 @@
 package nl.bsoft.mybatch.config.postgres;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.utils.DateUtils;

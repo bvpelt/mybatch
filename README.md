@@ -95,4 +95,9 @@ Customizing
 - http://micrometer.io/docs/concepts
 - https://metrics.dropwizard.io/3.1.0/manual/servlets/
 
+```bash
+grep "15 Step after chunk - job"  /tmp/sample-boot-application.log | sed -e 's/.\{180\}//'
+```
+
+
 

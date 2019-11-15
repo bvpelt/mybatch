@@ -1,5 +1,7 @@
 package nl.bsoft.mybatch.config.h2;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.h2.repo.BeschikkingsBevoegdheidH2Repo;
@@ -20,9 +22,15 @@ class BeschikkingsBevoegdheidH2Writer extends HibernateItemWriter<BeschikkingsBe
     @Autowired
     private BeschikkingsBevoegdheidH2Repo beschikkingsBevoegdheidH2Repo;
 
+    private PrometheusMeterRegistry prometheusRegistry;
+    private Counter writerH2Counter;
+
     @Autowired
-    public BeschikkingsBevoegdheidH2Writer(final SessionFactory sessionFactoryH2) {
+    public BeschikkingsBevoegdheidH2Writer(final SessionFactory sessionFactoryH2,
+                                           PrometheusMeterRegistry prometheusRegistry) {
         super.setSessionFactory(sessionFactoryH2);
+        this.prometheusRegistry = prometheusRegistry;
+        this.writerH2Counter = this.prometheusRegistry.counter("writerH2Counter", "aantal" , "waarde");
     }
 
     @Transactional("transactionManagerH2")
@@ -30,5 +38,6 @@ class BeschikkingsBevoegdheidH2Writer extends HibernateItemWriter<BeschikkingsBe
     public void write(final List<? extends BeschikkingsBevoegdheidH2> items) {
         log.debug("Saving {} items", items.size());
         beschikkingsBevoegdheidH2Repo.saveAll(items);
+        this.writerH2Counter.increment(items.size());
     }
 }

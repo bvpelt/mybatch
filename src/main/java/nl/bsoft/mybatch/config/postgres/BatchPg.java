@@ -1,7 +1,5 @@
 package nl.bsoft.mybatch.config.postgres;
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -9,10 +7,8 @@ import nl.bsoft.mybatch.config.MyJobListener;
 import nl.bsoft.mybatch.csv.Gegeven;
 import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
 import nl.bsoft.mybatch.listeners.FileSkipListener;
-import nl.bsoft.mybatch.listeners.MyStepListener;
 import nl.bsoft.mybatch.utils.ExceptionLimitSkipPolicy;
 import nl.bsoft.mybatch.utils.ExceptionSkipPolicy;
-import nl.bsoft.mybatch.utils.FileUtils;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepListener;
@@ -32,7 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -42,8 +39,6 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import org.springframework.transaction.interceptor.RuleBasedTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAttribute;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,13 +70,11 @@ class BatchPg {
     private StepListener stepListener;
 
     private PrometheusMeterRegistry prometheusRegistry;
-    private Counter fileReaderCounter;
 
     @Autowired
     public BatchPg(PrometheusMeterRegistry prometheusRegistry) {
         this.chunkSize = DEFAULT_CHUNKSIZE;
         this.prometheusRegistry = prometheusRegistry;
-        this.fileReaderCounter = this.prometheusRegistry.counter("fileReader", "aantal", "waarde");
     }
 
     @Bean
@@ -130,26 +123,20 @@ class BatchPg {
     public FlatFileItemReader<Gegeven> csvItemReader(@Value("#{jobParameters['filename']}") final String fileName) throws IOException {
         log.debug("getItemReader with parameter filename: {}", fileName);
 
-        File file = null;
-        String fullFileName = null;
-
-        file = FileUtils.search(fileName);
-        if (file == null) {
-            throw new FileNotFoundException("file: " + fileName);
-        } else {
-            fullFileName = file.toString();
+        Resource stateFile = new ClassPathResource(fileName);
+        if (null == stateFile) {
+            log.error("File: {} not found on classpath", fileName);
         }
 
         FlatFileItemReader<Gegeven> itemReader = new FlatFileItemReader<Gegeven>();
         itemReader.setLinesToSkip(1);
-        itemReader.setResource(new FileSystemResource(fullFileName)); //DelimitedLineTokenizer defaults to comma as its delimiter
+        itemReader.setResource(stateFile); //DelimitedLineTokenizer defaults to comma as its delimiter
         DefaultLineMapper<Gegeven> lineMapper = new DefaultLineMapper<Gegeven>();
         lineMapper.setLineTokenizer(new DelimitedLineTokenizer());
         lineMapper.setFieldSetMapper(new GegevensCsvFieldSetMapper());
         itemReader.setLineMapper(lineMapper);
         itemReader.open(new ExecutionContext());
 
-        this.fileReaderCounter.increment();
         return itemReader;
     }
 
@@ -157,7 +144,7 @@ class BatchPg {
     public Step fileToPostgresStepSkip(ItemReader<Gegeven> csvItemReader,
                                        ItemProcessor<Gegeven, BeschikkingsBevoegdheid> processor,
                                        ItemWriter<BeschikkingsBevoegdheid> gegevensWriter) throws IOException {
-       // MyStepListener<Gegeven, BeschikkingsBevoegdheid> ms = new MyStepListener<Gegeven, BeschikkingsBevoegdheid>();
+        // MyStepListener<Gegeven, BeschikkingsBevoegdheid> ms = new MyStepListener<Gegeven, BeschikkingsBevoegdheid>();
         return stepBuilder.get("fileToPostgresStep")
                 .<Gegeven, BeschikkingsBevoegdheid>chunk(chunkSize)
                 .reader(csvItemReader(WILL_BE_INJECTED))
@@ -194,7 +181,7 @@ class BatchPg {
 
     @Bean
     public ItemReader<Gegeven> gegevensReader() {
-        ItemReader<Gegeven> gegevenItemReader = new GegevensCsvReader();
+        ItemReader<Gegeven> gegevenItemReader = new GegevensCsvReader(this.prometheusRegistry);
         return gegevenItemReader;
     }
 
