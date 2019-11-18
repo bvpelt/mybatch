@@ -27,17 +27,22 @@ class GegevensPgWriter extends HibernateItemWriter<BeschikkingsBevoegdheid> {
 
     @Autowired
     public GegevensPgWriter(final SessionFactory sfPostgres,
-                            PrometheusMeterRegistry prometheusRegistry) {
+                            final PrometheusMeterRegistry prometheusRegistry) {
         setSessionFactory(sfPostgres);
         this.prometheusRegistry = prometheusRegistry;
-        this.gegevensPgWriterCounter = this.prometheusRegistry.counter("gegevenspgWriter", "aantal", "waarde");
+
+        this.gegevensPgWriterCounter = Counter.builder("writer")
+                //.baseUnit("gegevens")
+                .tags("bron", "postgres")
+                .description("Aantal verwerkte records")
+                .register(prometheusRegistry);
     }
 
     @Transactional(transactionManager = "transactionManagerPg", propagation = Propagation.REQUIRED)
     @Override
     public void write(final List<? extends BeschikkingsBevoegdheid> items) {
         log.debug("Writing {} beschikkingsbevoegdheid", items.size());
-        this.gegevensPgWriterCounter.increment(items.size());
         beschikkingsBevoegdheidRepo.saveAll(items);
+        this.gegevensPgWriterCounter.increment(items.size());
     }
 }

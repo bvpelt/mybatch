@@ -2,6 +2,7 @@ package nl.bsoft.mybatch.config.h2;
 
 
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -19,27 +20,42 @@ class BeschikkingsBevoegdheidProcessor implements ItemProcessor<BeschikkingsBevo
 
     private PrometheusMeterRegistry prometheusRegistry;
     private Counter beschikkingProcessCounter;
+    private Timer beschikkingTimer;
 
     @Autowired
-    public BeschikkingsBevoegdheidProcessor(PrometheusMeterRegistry prometheusRegistry) {
+    public BeschikkingsBevoegdheidProcessor(final PrometheusMeterRegistry prometheusRegistry) {
         this.prometheusRegistry = prometheusRegistry;
-        this.beschikkingProcessCounter = this.prometheusRegistry.counter("beschikkingsProcess", "aantal", "waarde");
+        this.beschikkingProcessCounter = Counter.builder("process")
+                //.baseUnit("gegevens")
+                .tags("bron", "h2")
+                .description("Aantal verwerkte records")
+                .register(this.prometheusRegistry);
+        this.beschikkingTimer = Timer.builder("processTimer")
+                .tag("bron", "h2")
+                .description("Snelheid verwerking van een record")
+                .register(this.prometheusRegistry);
     }
 
     @Override
     public BeschikkingsBevoegdheidH2 process(BeschikkingsBevoegdheid beschikkingsBevoegdheid) throws Exception {
-
-        final String status = "PROCESSED";
-        BeschikkingsBevoegdheidH2 beschikkingsBevoegdheidH2 = new BeschikkingsBevoegdheidH2();
-
-        beschikkingsBevoegdheidH2.setCode(beschikkingsBevoegdheid.getCode());
-        beschikkingsBevoegdheidH2.setDatumTot(beschikkingsBevoegdheid.getDatumTot());
-        beschikkingsBevoegdheidH2.setDatumVanAf(beschikkingsBevoegdheid.getDatumVanAf());
-        beschikkingsBevoegdheidH2.setProcesstatus(status);
-        beschikkingsBevoegdheidH2.setToelichting(beschikkingsBevoegdheid.getToelichting());
-        beschikkingsBevoegdheidH2.setWaarde(beschikkingsBevoegdheid.getWaarde());
-
         this.beschikkingProcessCounter.increment();
+        Timer.Sample h2SampleTime = Timer.start(prometheusRegistry);
+        BeschikkingsBevoegdheidH2 beschikkingsBevoegdheidH2 = null;
+
+        try {
+            final String status = "PROCESSED";
+            beschikkingsBevoegdheidH2 = new BeschikkingsBevoegdheidH2();
+
+            beschikkingsBevoegdheidH2.setCode(beschikkingsBevoegdheid.getCode());
+            beschikkingsBevoegdheidH2.setDatumTot(beschikkingsBevoegdheid.getDatumTot());
+            beschikkingsBevoegdheidH2.setDatumVanAf(beschikkingsBevoegdheid.getDatumVanAf());
+            beschikkingsBevoegdheidH2.setProcesstatus(status);
+            beschikkingsBevoegdheidH2.setToelichting(beschikkingsBevoegdheid.getToelichting());
+            beschikkingsBevoegdheidH2.setWaarde(beschikkingsBevoegdheid.getWaarde());
+
+        } finally {
+            h2SampleTime.stop(beschikkingTimer);
+        }
 
         return beschikkingsBevoegdheidH2;
     }

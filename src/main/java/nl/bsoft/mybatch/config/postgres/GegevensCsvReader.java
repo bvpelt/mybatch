@@ -19,7 +19,11 @@ public class GegevensCsvReader implements ItemReader<Gegeven> {
 
     public GegevensCsvReader(PrometheusMeterRegistry prometheusRegistry) {
         this.prometheusRegistry = prometheusRegistry;
-        this.fileReaderCounter = this.prometheusRegistry.counter("fileReader", "aantal", "waarde");
+        this.fileReaderCounter = Counter.builder("reader")
+                //.baseUnit("gegevens")
+                .tags("bron", "csv")
+                .description("Aantal gelezen records")
+                .register(prometheusRegistry);
     }
     @Override
     public Gegeven read() throws Exception {

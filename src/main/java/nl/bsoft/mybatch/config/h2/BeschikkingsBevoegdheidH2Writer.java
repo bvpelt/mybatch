@@ -30,7 +30,11 @@ class BeschikkingsBevoegdheidH2Writer extends HibernateItemWriter<BeschikkingsBe
                                            PrometheusMeterRegistry prometheusRegistry) {
         super.setSessionFactory(sessionFactoryH2);
         this.prometheusRegistry = prometheusRegistry;
-        this.writerH2Counter = this.prometheusRegistry.counter("writerH2Counter", "aantal" , "waarde");
+        this.writerH2Counter = Counter.builder("writer")
+                //.baseUnit("gegevens")
+                .tags("bron", "h2")
+                .description("Aantal verwerkte records")
+                .register(prometheusRegistry);
     }
 
     @Transactional("transactionManagerH2")
