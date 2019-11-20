@@ -1,14 +1,16 @@
 package nl.bsoft.mybatch.config.postgres;
 
+import com.zaxxer.hikari.HikariDataSource;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
 import org.hibernate.SessionFactory;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -27,13 +29,27 @@ import java.util.Properties;
         transactionManagerRef = "transactionManagerPg"
 )
 public class DatabaseConfigPostgres extends DatabaseConfig {
-
+    /*
+        @Bean
+        @Primary
+        @ConfigurationProperties(prefix = "spring.datasource.postgres")
+        public DataSource dataSourcePg() {
+            log.debug("Get primary datasource");
+            return DataSourceBuilder.create().build();
+        }
+    */
     @Bean
+    @ConfigurationProperties("spring.datasource.postgres")
+    public DataSourceProperties pgDataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
     @Primary
-    @ConfigurationProperties(prefix = "spring.datasource.postgres")
-    public DataSource dataSourcePg() {
-        log.debug("Get primary datasource");
-        return DataSourceBuilder.create().build();
+    @Bean(name = "dataSourcePg")
+    @ConfigurationProperties("spring.datasource.postgres.configuration")
+    public HikariDataSource dataSourcePg() {
+        log.info("datasourcepg config: {}", pgDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
+        return pgDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
     @Bean

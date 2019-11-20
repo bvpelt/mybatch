@@ -1,15 +1,17 @@
 package nl.bsoft.mybatch.config.h2;
 
+import com.zaxxer.hikari.HikariDataSource;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -27,12 +29,25 @@ import java.util.Properties;
         transactionManagerRef = "transactionManagerH2"
 )
 public class DatabaseConfigH2 extends DatabaseConfig {
+    /*
+        @Bean
+        @ConfigurationProperties(prefix = "spring.datasource.h2")
+        public DataSource dataSourceH2() {
 
+            return DataSourceBuilder.create().build();
+        }
+    */
     @Bean
-    @ConfigurationProperties(prefix = "spring.datasource.h2")
-    public DataSource dataSourceH2() {
+    @ConfigurationProperties("spring.datasource.h2")
+    public DataSourceProperties h2DataSourceProperties() {
+        return new DataSourceProperties();
+    }
 
-        return DataSourceBuilder.create().build();
+    @Bean(name = "dataSourceH2")
+    @ConfigurationProperties("spring.datasource.h2.configuration")
+    public HikariDataSource dataSourceH2() {
+        log.info("datasourceh2 config: {}", h2DataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
+        return h2DataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
     @Bean

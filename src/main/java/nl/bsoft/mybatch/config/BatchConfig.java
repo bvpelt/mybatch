@@ -9,6 +9,7 @@ import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -26,7 +27,7 @@ class BatchConfig extends DefaultBatchConfigurer {
     private final PlatformTransactionManager transactionManagerPg;
 
     @Autowired
-    public BatchConfig(final DataSource dataSourcePg,
+    public BatchConfig(@Qualifier("dataSourcePg") final DataSource dataSourcePg,
                        final PlatformTransactionManager transactionManagerPg) {
         super(dataSourcePg);
         log.debug("Create BatchConfig - datasource: {}, transactionmanager: {}", dataSourcePg.toString(), transactionManagerPg.toString());
