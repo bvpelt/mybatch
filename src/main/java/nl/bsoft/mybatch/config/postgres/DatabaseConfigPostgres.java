@@ -1,10 +1,12 @@
 package nl.bsoft.mybatch.config.postgres;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,6 +20,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -29,51 +32,55 @@ import java.util.Properties;
         transactionManagerRef = "transactionManagerPg"
 )
 public class DatabaseConfigPostgres extends DatabaseConfig {
-    /*
-        @Bean
-        @Primary
-        @ConfigurationProperties(prefix = "spring.datasource.postgres")
-        public DataSource dataSourcePg() {
-            log.debug("Get primary datasource");
-            return DataSourceBuilder.create().build();
-        }
-    */
+
+    private PrometheusMeterRegistry prometheusMeterRegistry;
+
+    public DatabaseConfigPostgres(final PrometheusMeterRegistry prometheusMeterRegistry) {
+        this.prometheusMeterRegistry = prometheusMeterRegistry;
+    }
+
     @Bean
-    @ConfigurationProperties("spring.datasource.postgres")
+    @Primary
+    @ConfigurationProperties("postgres.datasource")
     public DataSourceProperties pgDataSourceProperties() {
         return new DataSourceProperties();
     }
 
-    @Primary
     @Bean(name = "dataSourcePg")
-    @ConfigurationProperties("spring.datasource.postgres.configuration")
+    @Primary
+    @ConfigurationProperties("postgres.datasource.configuration")
     public HikariDataSource dataSourcePg() {
         log.info("datasourcepg config: {}", pgDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
         return pgDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
-    @Bean
+    @PostConstruct
+    public void setUpHikariWithMetrics() {
+        if (dataSourcePg() instanceof HikariDataSource) {
+            ((HikariDataSource) dataSourcePg()).setMetricRegistry(prometheusMeterRegistry);
+        }
+    }
+
+    @Bean(name = "sfPostgres")
+    public SessionFactory sfPostgres() throws SQLException {
+        return entityManagerFactoryPg().getObject().unwrap(SessionFactory.class);
+    }
+
+    @Bean("liquibaseProperties")
     @ConfigurationProperties(prefix = "datasource.postgres.liquibase")
     public LiquibaseProperties liquibaseProperties() {
         return new LiquibaseProperties();
     }
 
-    @Bean
+    @Bean("liquibase")
+    @DependsOn("dataSourcePg")
     @Primary
-    public SpringLiquibase liquibase(final DataSource dataSourcePg) {
+    public SpringLiquibase liquibase(@Qualifier("dataSourcePg") final DataSource dataSourcePg) {
         return springLiquibase(dataSourcePg, liquibaseProperties());
     }
 
     @Bean
-    @Primary
-    public PlatformTransactionManager transactionManagerPg() {
-        log.debug("Get primary transactionManager");
-        return new JpaTransactionManager(entityManagerFactoryPg().getObject());
-    }
-
-    @Bean
-    @Primary
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryPg() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryPg() throws SQLException {
 
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
 
@@ -82,14 +89,15 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setJpaProperties(hibernateProperties());
         factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.postgres.repo", "nl.bsoft.mybatch.database");
-        factoryBean.setPersistenceUnitName("postgres");
+        factoryBean.setPersistenceUnitName("postgres-unit");
 
         return factoryBean;
     }
 
     @Bean
-    public SessionFactory sfPostgres() throws SQLException {
-        return entityManagerFactoryPg().getObject().unwrap(SessionFactory.class);
+    public PlatformTransactionManager transactionManagerPg() throws SQLException {
+        log.debug("Get primary transactionManager");
+        return new JpaTransactionManager(entityManagerFactoryPg().getObject());
     }
 
     private Properties hibernateProperties() {

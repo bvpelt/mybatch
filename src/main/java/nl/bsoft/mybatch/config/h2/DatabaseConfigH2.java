@@ -1,6 +1,7 @@
 package nl.bsoft.mybatch.config.h2;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
@@ -18,6 +19,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -29,46 +31,53 @@ import java.util.Properties;
         transactionManagerRef = "transactionManagerH2"
 )
 public class DatabaseConfigH2 extends DatabaseConfig {
-    /*
-        @Bean
-        @ConfigurationProperties(prefix = "spring.datasource.h2")
-        public DataSource dataSourceH2() {
 
-            return DataSourceBuilder.create().build();
-        }
-    */
+    private PrometheusMeterRegistry prometheusMeterRegistry;
+
+    public DatabaseConfigH2(final PrometheusMeterRegistry prometheusMeterRegistry) {
+        this.prometheusMeterRegistry = prometheusMeterRegistry;
+    }
+
     @Bean
-    @ConfigurationProperties("spring.datasource.h2")
+    @ConfigurationProperties("h2.datasource")
     public DataSourceProperties h2DataSourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean(name = "dataSourceH2")
-    @ConfigurationProperties("spring.datasource.h2.configuration")
+    @ConfigurationProperties("h2.datasource.configuration")
     public HikariDataSource dataSourceH2() {
         log.info("datasourceh2 config: {}", h2DataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
         return h2DataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
-    @Bean
+    @PostConstruct
+    public void setUpHikariWithMetrics() {
+        if (dataSourceH2() instanceof HikariDataSource) {
+            ((HikariDataSource) dataSourceH2()).setMetricRegistry(prometheusMeterRegistry);
+        }
+    }
+
+    @Bean(name = "sfH2")
+    public SessionFactory sessionFactoryH2() throws SQLException {
+        return entityManagerFactoryH2().getObject().unwrap(SessionFactory.class);
+    }
+
+    @Bean("liquibasePropertiesH2")
     @ConfigurationProperties(prefix = "datasource.h2.h2liquibase")
     public LiquibaseProperties liquibasePropertiesH2() {
 
         return new LiquibaseProperties();
     }
 
-    @Bean
+    @Bean("liquibaseH2")
+    @DependsOn("dataSourceH2")
     public SpringLiquibase liquibaseH2(@Qualifier("dataSourceH2") final DataSource dataSource) {
         return springLiquibase(dataSource, liquibasePropertiesH2());
     }
 
     @Bean
-    public PlatformTransactionManager transactionManagerH2() {
-        return new JpaTransactionManager(entityManagerFactoryH2().getObject());
-    }
-
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryH2() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryH2() throws SQLException {
 
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
 
@@ -77,14 +86,14 @@ public class DatabaseConfigH2 extends DatabaseConfig {
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setJpaProperties(hibernateProperties());
         factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.h2.repo", "nl.bsoft.mybatch.database");
-        factoryBean.setPersistenceUnitName("h2");
+        factoryBean.setPersistenceUnitName("h2-unit");
 
         return factoryBean;
     }
 
-    @Bean(destroyMethod = "")
-    public SessionFactory sessionFactoryH2() throws SQLException {
-        return entityManagerFactoryH2().getObject().unwrap(SessionFactory.class);
+    @Bean
+    public PlatformTransactionManager transactionManagerH2() throws SQLException {
+        return new JpaTransactionManager(entityManagerFactoryH2().getObject());
     }
 
     private Properties hibernateProperties() {

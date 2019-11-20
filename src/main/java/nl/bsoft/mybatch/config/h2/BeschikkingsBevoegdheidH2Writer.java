@@ -9,6 +9,7 @@ import nl.bsoft.mybatch.database.BeschikkingsBevoegdheidH2;
 import org.hibernate.SessionFactory;
 import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ class BeschikkingsBevoegdheidH2Writer extends HibernateItemWriter<BeschikkingsBe
     private Counter writerH2Counter;
 
     @Autowired
-    public BeschikkingsBevoegdheidH2Writer(final SessionFactory sessionFactoryH2,
+    public BeschikkingsBevoegdheidH2Writer(@Qualifier("sfH2") final SessionFactory sessionFactoryH2,
                                            PrometheusMeterRegistry prometheusRegistry) {
         super.setSessionFactory(sessionFactoryH2);
         this.prometheusRegistry = prometheusRegistry;

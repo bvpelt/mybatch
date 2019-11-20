@@ -18,15 +18,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
                 HibernateJpaAutoConfiguration.class,
                 LiquibaseAutoConfiguration.class,
                 BatchAutoConfiguration.class})
-//@EnableSwagger2
 @Slf4j
 @EnableAsync
 @EnableTransactionManagement
 public class MybatchApplication extends SpringBootServletInitializer {
-
-
     private static final Class<MybatchApplication> APP_CLASS = MybatchApplication.class;
-
 
     public static void main(String[] args) {
         log.info("Bezig met configureren...van");
