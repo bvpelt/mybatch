@@ -41,7 +41,9 @@ public class MyTestGlue extends AbstractSpringTest implements Nl {
         };
 
         for (CrudRepository repo : repos) {
-            repo.deleteAll();
+            if (repo.count() > 0) {
+                repo.deleteAll();
+            }
         }
     }
 

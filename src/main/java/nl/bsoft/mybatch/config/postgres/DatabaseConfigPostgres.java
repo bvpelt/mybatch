@@ -1,6 +1,7 @@
 package nl.bsoft.mybatch.config.postgres;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
@@ -11,7 +12,6 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -19,8 +19,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -31,15 +31,13 @@ import java.util.Properties;
         transactionManagerRef = "transactionManagerPg"
 )
 public class DatabaseConfigPostgres extends DatabaseConfig {
-    /*
-        @Bean
-        @Primary
-        @ConfigurationProperties(prefix = "spring.datasource.postgres")
-        public DataSource dataSourcePg() {
-            log.debug("Get primary datasource");
-            return DataSourceBuilder.create().build();
-        }
-    */
+
+    private PrometheusMeterRegistry prometheusMeterRegistry;
+
+    public DatabaseConfigPostgres(final PrometheusMeterRegistry prometheusMeterRegistry) {
+        this.prometheusMeterRegistry = prometheusMeterRegistry;
+    }
+
     @Bean
     @ConfigurationProperties("spring.datasource")
     public DataSourceProperties pgDataSourceProperties() {
@@ -49,7 +47,6 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
     @Bean
     @Primary
     @ConfigurationProperties("spring.datasource.configuration")
-//    public HikariDataSource dataSource(final DataSourceProperties pgDataSourceProperties) {
     public DataSource dataSource(final DataSourceProperties pgDataSourceProperties) {
         log.info("datasource config: {}", pgDataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
         return pgDataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
@@ -60,6 +57,14 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
         return Objects.requireNonNull(entityManagerFactoryPg.getObject()).unwrap(SessionFactory.class);
     }
 
+    @PostConstruct
+    public void setUpHikariWithMetrics() {
+        DataSource dataSource = dataSource(pgDataSourceProperties());
+        if (dataSource instanceof HikariDataSource) {
+            ((HikariDataSource) dataSource).setMetricRegistry(prometheusMeterRegistry);
+        }
+    }
+
     @Bean
     @ConfigurationProperties(prefix = "datasource.postgres.liquibase")
     public LiquibaseProperties liquibaseProperties() {
@@ -68,7 +73,7 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
 
     @Bean
     @Primary
-    public SpringLiquibase liquibase(@Qualifier("dataSource") final DataSource dataSource,  final LiquibaseProperties liquibaseProperties) {
+    public SpringLiquibase liquibase(@Qualifier("dataSource") final DataSource dataSource, final LiquibaseProperties liquibaseProperties) {
         return springLiquibase(dataSource, liquibaseProperties());
     }
 

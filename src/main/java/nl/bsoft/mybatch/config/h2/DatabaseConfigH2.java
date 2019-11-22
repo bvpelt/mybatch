@@ -1,6 +1,7 @@
 package nl.bsoft.mybatch.config.h2;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
@@ -11,16 +12,14 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -31,14 +30,13 @@ import java.util.Properties;
         transactionManagerRef = "transactionManagerH2"
 )
 public class DatabaseConfigH2 extends DatabaseConfig {
-    /*
-        @Bean
-        @ConfigurationProperties(prefix = "spring.datasource.h2")
-        public DataSource dataSourceH2() {
 
-            return DataSourceBuilder.create().build();
-        }
-    */
+    private PrometheusMeterRegistry prometheusMeterRegistry;
+
+    public DatabaseConfigH2(final PrometheusMeterRegistry prometheusMeterRegistry) {
+        this.prometheusMeterRegistry = prometheusMeterRegistry;
+    }
+
     @Bean
     @ConfigurationProperties("spring.datasource.h2")
     public DataSourceProperties h2DataSourceProperties() {
@@ -47,8 +45,7 @@ public class DatabaseConfigH2 extends DatabaseConfig {
 
     @Bean(name = "dataSourceH2")
     @ConfigurationProperties("spring.datasource.h2.configuration")
-    //public HikariDataSource dataSourceH2(final DataSourceProperties h2DataSourceProperties) {
-        public DataSource dataSourceH2(final DataSourceProperties h2DataSourceProperties) {
+    public DataSource dataSourceH2(final DataSourceProperties h2DataSourceProperties) {
         log.info("datasourceh2 config: {}", h2DataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
         return h2DataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
@@ -56,6 +53,14 @@ public class DatabaseConfigH2 extends DatabaseConfig {
     @Bean
     public SessionFactory sessionFactoryH2(@Qualifier("entityManagerFactoryH2") final LocalContainerEntityManagerFactoryBean entityManagerFactoryH2) {
         return Objects.requireNonNull(entityManagerFactoryH2.getObject()).unwrap(SessionFactory.class);
+    }
+
+    @PostConstruct
+    public void setUpHikariWithMetrics() {
+        DataSource dataSource = dataSourceH2(h2DataSourceProperties());
+        if (dataSource instanceof HikariDataSource) {
+            ((HikariDataSource) dataSource).setMetricRegistry(prometheusMeterRegistry);
+        }
     }
 
     @Bean

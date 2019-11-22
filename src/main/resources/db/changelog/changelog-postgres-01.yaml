@@ -28,6 +28,10 @@ databaseChangeLog:
               - column:
                   name: TOELICHTING
                   type: varchar(128)
+        - rollback:
+            dropTable:
+            - tableName: BESCHIKKINGSBEVOEGDHEID
+
   - changeSet:
       id: 200
       author: bart

@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableBatchProcessing
 @EnableTransactionManagement
-public @Data
+public 
 class BatchConfig extends DefaultBatchConfigurer {
 
     private final DataSource dataSourcePg;
@@ -41,17 +41,42 @@ class BatchConfig extends DefaultBatchConfigurer {
         return this.transactionManagerPg;
     }
 
+
     @Override
     protected JobRepository createJobRepository() throws Exception {
         JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
         factory.setDataSource(this.dataSourcePg);
         factory.setTransactionManager(this.transactionManagerPg);
-        factory.setIsolationLevelForCreate("ISOLATION_SERIALIZABLE");
+//        factory.setIsolationLevelForCreate("ISOLATION_SERIALIZABLE");
         factory.setTablePrefix("BATCH_");
         factory.setMaxVarCharLength(2500);
         return factory.getObject();
     }
 
+
+
+    @Override
+    public JobExplorer getJobExplorer()  {
+        JobExplorerFactoryBean factory = new JobExplorerFactoryBean();
+        factory.setDataSource(this.dataSourcePg);
+        factory.setTablePrefix("BATCH_");
+        JobExplorer jobExplorer = null;
+        try {
+            jobExplorer = factory.getObject();
+        } catch (Exception e) {
+            log.error("Couldnot find job explorer");
+        }
+        return jobExplorer;
+    }
+
+
+    @Autowired
+    @Override
+    public void setDataSource(final DataSource dataSource) {
+        super.setDataSource(dataSource);
+    }
+
+/*
     @Override
     public JobExplorer getJobExplorer() {
         JobExplorerFactoryBean factoryBean = new JobExplorerFactoryBean();
@@ -64,4 +89,6 @@ class BatchConfig extends DefaultBatchConfigurer {
         }
         return jobExplorer;
     }
+*/
+
 }
