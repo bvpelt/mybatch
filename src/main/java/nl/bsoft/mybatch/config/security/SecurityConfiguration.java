@@ -43,7 +43,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                 .permitAll()
                 .antMatchers("/console/**").permitAll()
-                .antMatchers("/").permitAll()
+                .antMatchers("/jobs/**").permitAll()
+                .antMatchers("/joblauncher/**").permitAll()
+                .antMatchers("/**").permitAll()
                 .and().httpBasic();
         httpSecurity.csrf().disable();
         httpSecurity.headers().frameOptions().disable();

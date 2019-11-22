@@ -12,6 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -20,6 +21,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.Properties;
 
 @Slf4j
@@ -45,35 +47,35 @@ public class DatabaseConfigH2 extends DatabaseConfig {
 
     @Bean(name = "dataSourceH2")
     @ConfigurationProperties("spring.datasource.h2.configuration")
-    public HikariDataSource dataSourceH2() {
-        log.info("datasourceh2 config: {}", h2DataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
-        return h2DataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
+    //public HikariDataSource dataSourceH2(final DataSourceProperties h2DataSourceProperties) {
+        public DataSource dataSourceH2(final DataSourceProperties h2DataSourceProperties) {
+        log.info("datasourceh2 config: {}", h2DataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
+        return h2DataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+    }
+
+    @Bean
+    public SessionFactory sessionFactoryH2(@Qualifier("entityManagerFactoryH2") final LocalContainerEntityManagerFactoryBean entityManagerFactoryH2) {
+        return Objects.requireNonNull(entityManagerFactoryH2.getObject()).unwrap(SessionFactory.class);
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.h2.h2liquibase")
     public LiquibaseProperties liquibasePropertiesH2() {
-
         return new LiquibaseProperties();
     }
 
     @Bean
-    public SpringLiquibase liquibaseH2(@Qualifier("dataSourceH2") final DataSource dataSource) {
-        return springLiquibase(dataSource, liquibasePropertiesH2());
+    public SpringLiquibase liquibaseH2(@Qualifier("dataSourceH2") final DataSource dataSourceH2) {
+        return springLiquibase(dataSourceH2, liquibasePropertiesH2());
     }
 
     @Bean
-    public PlatformTransactionManager transactionManagerH2() {
-        return new JpaTransactionManager(entityManagerFactoryH2().getObject());
-    }
-
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryH2() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryH2(@Qualifier("dataSourceH2") final DataSource dataSourceH2) {
 
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
 
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
-        factoryBean.setDataSource(dataSourceH2());
+        factoryBean.setDataSource(dataSourceH2);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setJpaProperties(hibernateProperties());
         factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.h2.repo", "nl.bsoft.mybatch.database");
@@ -82,18 +84,23 @@ public class DatabaseConfigH2 extends DatabaseConfig {
         return factoryBean;
     }
 
-    @Bean(destroyMethod = "")
-    public SessionFactory sessionFactoryH2() throws SQLException {
-        return entityManagerFactoryH2().getObject().unwrap(SessionFactory.class);
+    @Bean
+    public PlatformTransactionManager transactionManagerH2(@Qualifier("dataSourceH2") final DataSource dataSourceH2) {
+        log.debug("Get h2 transactionManager");
+        return new JpaTransactionManager(entityManagerFactoryH2(dataSourceH2).getObject());
     }
+
 
     private Properties hibernateProperties() {
         final Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+/*
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "none");
         hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
         hibernateProperties.setProperty("hibernate.show_sql", "true");
         hibernateProperties.setProperty("hibernate.generate_statistics", "true");
+
+ */
         return hibernateProperties;
     }
 

@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 200
+      id: 300
       author: bart
       changes:
         - createSequence:

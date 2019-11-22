@@ -86,6 +86,7 @@
         <maven-surefile-plugin.version>2.22.2</maven-surefile-plugin.version>
         -->
         <spring-boot.version>2.1.7.RELEASE</spring-boot.version>
+        <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
         <jacoco.it.execution.data.file>${project.build.directory}/jacoco-it.exec</jacoco.it.execution.data.file>
         <jacoco.ut.execution.data.file>${project.build.directory}/jacoco-ut.exec</jacoco.ut.execution.data.file>
         <jacoco.execution.data.file>${project.build.directory}/jacoco.exec</jacoco.execution.data.file>
@@ -237,6 +238,24 @@
             <version>4.3.1</version>
         </dependency>
 
+        <!-- Documentation -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox-swagger2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>com.google.guava</artifactId>
+                    <groupId>guava</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox-swagger2.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

@@ -28,6 +28,10 @@ databaseChangeLog:
               - column:
                   name: TOELICHTING
                   type: varchar(128)
+  - changeSet:
+      id: 200
+      author: bart
+      changes:
         - createIndex:
             columns:
               - column:

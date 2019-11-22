@@ -1,14 +1,16 @@
 package nl.bsoft.mybatch.controller;
 
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.GitProperties;
 import nl.bsoft.mybatch.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -25,6 +27,9 @@ import java.util.Enumeration;
 import java.util.List;
 
 @Slf4j
+//@RestController
+//@RequestMapping("/jobs")
+//@Api("STAND mapping service")
 @Controller
 public class JobsController {
     private static final Logger logger = LoggerFactory.getLogger(JobsController.class);
@@ -51,7 +56,7 @@ public class JobsController {
      * @param request, additional parameters for this job
      * @throws Exception
      */
-    @RequestMapping(value = "joblauncher", method = RequestMethod.GET)
+    @RequestMapping(value = "/joblauncher", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void launch(@RequestParam String job,
                        HttpServletRequest request) throws Exception {
@@ -72,10 +77,17 @@ public class JobsController {
             default:
                 throw new Exception("Job " + jobName + " not known");
         }
-        jobLauncher.run(
-                selectedJob,
-                builder.toJobParameters()
-        );
+
+        JobExecution execution = null;
+        try {
+            execution = jobLauncher.run(selectedJob, builder.toJobParameters());
+        } catch (final JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException | JobParametersInvalidException e) {
+            log.error("MYBATCH-01: - {}", e);
+        }
+
+        if (!execution.getStatus().equals(BatchStatus.COMPLETED)) {
+            log.error("MYBATCH-02: job {} not completed ", selectedJob.getName());
+        }
     }
 
     private JobParametersBuilder extractParameters(
