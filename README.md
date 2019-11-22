@@ -11,7 +11,9 @@ In order to use this project you need to have
 - postgres 10 installed and running with database mybatch and user testuser with password 12345
 
 # Database config
-See http://www.javaoptimum.com/how-to-configure-multiple-datasources-with-spring-boot/
+See 
+- http://www.javaoptimum.com/how-to-configure-multiple-datasources-with-spring-boot/
+- https://www.springboottutorial.com/hibernate-jpa-tutorial-with-spring-boot-starter-jpa
 
 # Spring boot
 - https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/
