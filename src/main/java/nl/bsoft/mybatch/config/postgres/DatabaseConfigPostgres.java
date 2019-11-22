@@ -53,6 +53,7 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
     }
 
     @Bean
+    @Primary
     public SessionFactory sfPostgres(@Qualifier("entityManagerFactoryPg") final LocalContainerEntityManagerFactoryBean entityManagerFactoryPg) {
         return Objects.requireNonNull(entityManagerFactoryPg.getObject()).unwrap(SessionFactory.class);
     }

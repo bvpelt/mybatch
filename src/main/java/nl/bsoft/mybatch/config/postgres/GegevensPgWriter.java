@@ -8,6 +8,7 @@ import nl.bsoft.mybatch.database.BeschikkingsBevoegdheid;
 import org.hibernate.SessionFactory;
 import org.springframework.batch.item.database.HibernateItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ class GegevensPgWriter extends HibernateItemWriter<BeschikkingsBevoegdheid> {
     private BeschikkingsBevoegdheidRepo beschikkingsBevoegdheidRepo;
 
     @Autowired
-    public GegevensPgWriter(final SessionFactory sfPostgres,
+    public GegevensPgWriter(@Qualifier("sfPostgres") final SessionFactory sfPostgres,
                             final PrometheusMeterRegistry prometheusRegistry) {
         setSessionFactory(sfPostgres);
         this.prometheusRegistry = prometheusRegistry;

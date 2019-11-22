@@ -52,7 +52,7 @@ class BatchPg {
     private final int NUMBER_FILE_EXCEPTIONS_TO_SKIP = 2;
     private final int DEFAULT_TIMEOUT = 2;
 
-    private int chunkSize;
+    private final int chunkSize;
 
     @Autowired
     private JobBuilderFactory jobBuilder;
@@ -69,10 +69,10 @@ class BatchPg {
     @Autowired
     private StepListener stepListener;
 
-    private PrometheusMeterRegistry prometheusRegistry;
+    private final PrometheusMeterRegistry prometheusRegistry;
 
     @Autowired
-    public BatchPg(PrometheusMeterRegistry prometheusRegistry) {
+    public BatchPg(final PrometheusMeterRegistry prometheusRegistry) {
         this.chunkSize = DEFAULT_CHUNKSIZE;
         this.prometheusRegistry = prometheusRegistry;
     }

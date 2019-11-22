@@ -103,3 +103,4 @@ grep "15 Step after chunk - job"  /tmp/sample-boot-application.log | sed -e 's/.
 
 # Examples
 - https://github.com/eugenp/tutorials/tree/master/spring-batch
+- https://docs.spring.io/spring-batch/docs/4.2.x/reference/html/spring-batch-integration.html

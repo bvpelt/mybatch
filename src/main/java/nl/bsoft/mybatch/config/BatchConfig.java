@@ -11,29 +11,37 @@ import org.springframework.batch.core.repository.support.JobRepositoryFactoryBea
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Slf4j
+//@Component
 @Configuration
 @EnableBatchProcessing
 @EnableTransactionManagement
-public 
+public
 class BatchConfig extends DefaultBatchConfigurer {
 
-    private final DataSource dataSourcePg;
-    private final PlatformTransactionManager transactionManagerPg;
+    @Autowired
+    private DataSource dataSourcePg;
 
     @Autowired
+    private PlatformTransactionManager transactionManagerPg;
+
+
+    /*
+    @Autowired
     public BatchConfig(@Qualifier("dataSource") final DataSource dataSourcePg,
-                       final PlatformTransactionManager transactionManagerPg) {
+                       @Qualifier("transactionManagerPg") final PlatformTransactionManager transactionManagerPg) {
         super(dataSourcePg);
         log.debug("Create BatchConfig - datasource: {}, transactionmanager: {}", dataSourcePg.toString(), transactionManagerPg.toString());
         this.dataSourcePg = dataSourcePg;
         this.transactionManagerPg = transactionManagerPg;
     }
+*/
 
     @Override
     public PlatformTransactionManager getTransactionManager() {
@@ -54,7 +62,7 @@ class BatchConfig extends DefaultBatchConfigurer {
     }
 
 
-
+/*
     @Override
     public JobExplorer getJobExplorer()  {
         JobExplorerFactoryBean factory = new JobExplorerFactoryBean();
@@ -70,9 +78,13 @@ class BatchConfig extends DefaultBatchConfigurer {
     }
 
 
+    public JobExplorer getJobExplorer() {
+        return this.jobExplorer;
+    }
+*/
     @Autowired
     @Override
-    public void setDataSource(final DataSource dataSource) {
+    public void setDataSource(@Qualifier("dataSource") final DataSource dataSource) {
         super.setDataSource(dataSource);
     }
 
