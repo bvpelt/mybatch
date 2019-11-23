@@ -28,6 +28,10 @@ See
 Default wordt gebruik gemaakt van:
 - username: user
 - password generated
+
+# Spring Actuator
+- https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/actuator-api/html/
+
 # Git plugin
 To make it work on ubuntu use
 ```bash

@@ -2,12 +2,21 @@ package nl.bsoft.mybatch.config.postgres;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import liquibase.Contexts;
+import liquibase.LabelExpression;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseDataSource;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +30,9 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.SharedCacheMode;
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -54,6 +65,16 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
         return pgDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
+    /*
+    @LiquibaseDataSource
+    @Primary
+    public DataSource liqDataSourcePg(@Qualifier("dataSource") final HikariDataSource dataSource) {
+        // Create data source, set pool size to 1 and return it
+        return (DataSource) dataSource;
+    }
+
+     */
+
     @PostConstruct
     public void setUpHikariWithMetrics() {
         if (dataSource() instanceof HikariDataSource) {
@@ -72,13 +93,27 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
         return new LiquibaseProperties();
     }
 
-    @Bean
+    @Bean(name="liquibase")
     @DependsOn("dataSource")
     @Primary
     public SpringLiquibase liquibase(@Qualifier("dataSource") final DataSource dataSource,
                                      @Qualifier("liquibaseProperties") LiquibaseProperties liquibaseProperties) {
         return springLiquibase(dataSource, liquibaseProperties);
     }
+/*
+    @Bean
+    public Liquibase lqPg(@Qualifier("dataSource") final DataSource dataSource) throws SQLException, LiquibaseException {
+
+        Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(dataSource.getConnection()));
+
+        Liquibase liquibase = new Liquibase("db/changelog/changelog-postgres-master.yaml", new ClassLoaderResourceAccessor(), database);
+
+        liquibase.update(new Contexts(), new LabelExpression());
+
+        return liquibase;
+    }
+
+ */
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryPg(@Qualifier("dataSource") final DataSource dataSource) {
@@ -89,13 +124,16 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
         factoryBean.setJpaProperties(hibernateProperties());
         factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.postgres.repo", "nl.bsoft.mybatch.database");
         factoryBean.setPersistenceUnitName("postgres-unit");
+
+        //factoryBean.setSharedCacheMode(SharedCacheMode.ALL);
         return factoryBean;
     }
 
     @Bean
-    public PlatformTransactionManager transactionManagerPg(@Qualifier("dataSource") final DataSource dataSource) {
-        log.debug("Get primary transactionManager");
-        return new JpaTransactionManager(entityManagerFactoryPg(dataSource).getObject());
+    public PlatformTransactionManager transactionManagerPg(@Qualifier("entityManagerFactoryPg") LocalContainerEntityManagerFactoryBean entityManagerFactoryPg) {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactoryPg.getObject());
+        return transactionManager;
     }
 
     private Properties hibernateProperties() {

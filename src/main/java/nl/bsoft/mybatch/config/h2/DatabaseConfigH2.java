@@ -2,12 +2,21 @@ package nl.bsoft.mybatch.config.h2;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import liquibase.Contexts;
+import liquibase.LabelExpression;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.DatabaseConfig;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseDataSource;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -52,6 +61,15 @@ public class DatabaseConfigH2 extends DatabaseConfig {
         return h2DataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
+    /*
+    @LiquibaseDataSource
+    public DataSource liqDataSourceH2(@Qualifier("dataSourceH2") final HikariDataSource dataSourceH2) {
+        // Create data source, set pool size to 1 and return it
+        return (DataSource) dataSourceH2;
+    }
+
+     */
+
     @PostConstruct
     public void setUpHikariWithMetrics() {
         if (dataSourceH2() instanceof HikariDataSource) {
@@ -77,6 +95,20 @@ public class DatabaseConfigH2 extends DatabaseConfig {
         return springLiquibase(dataSource, liquibasePropertiesH2);
     }
 
+/*
+    @Bean
+    public Liquibase lqH2(@Qualifier("dataSourceH2") final DataSource dataSource) throws SQLException, LiquibaseException {
+
+        Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(dataSource.getConnection()));
+
+        Liquibase liquibase = new Liquibase("db/changelog/changelog-h2-master.yaml", new ClassLoaderResourceAccessor(), database);
+
+        liquibase.update(new Contexts(), new LabelExpression());
+
+        return liquibase;
+    }
+*/
+
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryH2(@Qualifier("dataSourceH2") final DataSource dataSourceH2) throws SQLException {
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
@@ -91,8 +123,10 @@ public class DatabaseConfigH2 extends DatabaseConfig {
     }
 
     @Bean
-    public PlatformTransactionManager transactionManagerH2(@Qualifier("dataSourceH2") final DataSource dataSourceH2) throws SQLException {
-        return new JpaTransactionManager(entityManagerFactoryH2(dataSourceH2).getObject());
+    public PlatformTransactionManager transactionManagerH2(@Qualifier("entityManagerFactoryH2") LocalContainerEntityManagerFactoryBean entityManagerFactoryH2) {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactoryH2.getObject());
+        return transactionManager;
     }
 
     private Properties hibernateProperties() {
