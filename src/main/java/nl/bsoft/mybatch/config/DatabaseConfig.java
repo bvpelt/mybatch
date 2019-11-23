@@ -23,4 +23,5 @@ public abstract class DatabaseConfig extends HikariConfig {
         liquibase.setRollbackFile(properties.getRollbackFile());
         return liquibase;
     }
+
 }

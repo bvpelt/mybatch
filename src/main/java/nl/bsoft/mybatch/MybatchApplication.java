@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         (exclude = {
                 DataSourceAutoConfiguration.class,
                 HibernateJpaAutoConfiguration.class,
-                LiquibaseAutoConfiguration.class,
+//                LiquibaseAutoConfiguration.class,
                 BatchAutoConfiguration.class})
 @Slf4j
 @EnableAsync
