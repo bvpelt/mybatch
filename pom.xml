@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.7.RELEASE</version>
+        <version>2.2.1.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -69,7 +69,7 @@
         <asciidoctor.version>1.6.0</asciidoctor.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <cucumber.version>1.2.5</cucumber.version>
-        <decodecentric.version>2.1.6</decodecentric.version>
+        <decodecentric.version>2.2.0-SNAPSHOT</decodecentric.version>
         <dokbkx.version>2.0.17</dokbkx.version>
         <git-commit-id-plugin.version>3.0.1</git-commit-id-plugin.version>
         <hibernate.version>5.4.9.Final</hibernate.version>
@@ -524,5 +524,33 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>spring-milestone</id>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>http://repo.spring.io/milestone</url>
+        </repository>
+        <repository>
+            <id>spring-snapshot</id>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>http://repo.spring.io/snapshot</url>
+        </repository>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
 </project>
