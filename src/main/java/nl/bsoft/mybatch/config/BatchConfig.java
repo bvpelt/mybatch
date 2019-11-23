@@ -27,11 +27,11 @@ class BatchConfig extends DefaultBatchConfigurer {
     private final PlatformTransactionManager transactionManagerPg;
 
     @Autowired
-    public BatchConfig(@Qualifier("dataSourcePg") final DataSource dataSourcePg,
+    public BatchConfig(@Qualifier("dataSource") final DataSource dataSource,
                        final PlatformTransactionManager transactionManagerPg) {
-        super(dataSourcePg);
-        log.debug("Create BatchConfig - datasource: {}, transactionmanager: {}", dataSourcePg.toString(), transactionManagerPg.toString());
-        this.dataSourcePg = dataSourcePg;
+        super(dataSource);
+        log.debug("Create BatchConfig - datasource: {}, transactionmanager: {}", dataSource.toString(), transactionManagerPg.toString());
+        this.dataSourcePg = dataSource;
         this.transactionManagerPg = transactionManagerPg;
     }
 
