@@ -54,11 +54,12 @@ class BatchConfig extends DefaultBatchConfigurer {
 
     @Override
     public JobExplorer getJobExplorer() {
-        JobExplorerFactoryBean factoryBean = new JobExplorerFactoryBean();
-        factoryBean.setDataSource(this.dataSourcePg);
+        JobExplorerFactoryBean factory = new JobExplorerFactoryBean();
+        factory.setDataSource(this.dataSourcePg);
+        factory.setTablePrefix("BATCH_");
         JobExplorer jobExplorer = null;
         try {
-            jobExplorer = factoryBean.getObject();
+            jobExplorer = factory.getObject();
         } catch (Exception e) {
             log.error("Couldnot find job explorer");
         }

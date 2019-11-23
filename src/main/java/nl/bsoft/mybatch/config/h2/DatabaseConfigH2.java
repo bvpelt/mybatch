@@ -99,10 +99,13 @@ public class DatabaseConfigH2 extends DatabaseConfig {
     private Properties hibernateProperties() {
         final Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+/*
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "none");
         hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
         hibernateProperties.setProperty("hibernate.show_sql", "true");
         hibernateProperties.setProperty("hibernate.generate_statistics", "true");
+
+ */
         return hibernateProperties;
     }
 
