@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import javax.sql.DataSource;
 
 @Slf4j
-public class DatabaseConfig extends HikariConfig {
+public abstract class DatabaseConfig extends HikariConfig {
 
-    public SpringLiquibase springLiquibase(DataSource dataSource, LiquibaseProperties properties) {
+    protected static SpringLiquibase springLiquibase(final DataSource dataSource, final LiquibaseProperties properties) {
         SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(dataSource);
         liquibase.setChangeLog(properties.getChangeLog());

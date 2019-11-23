@@ -61,18 +61,18 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
         }
     }
 
-    @Bean(name = "sfPostgres")
+    @Bean
     public SessionFactory sfPostgres(@Qualifier("entityManagerFactoryPg") final LocalContainerEntityManagerFactoryBean entityManagerFactoryPg) {
         return Objects.requireNonNull(entityManagerFactoryPg.getObject()).unwrap(SessionFactory.class);
     }
 
-    @Bean("liquibaseProperties")
+    @Bean
     @ConfigurationProperties(prefix = "datasource.postgres.liquibase")
     public LiquibaseProperties liquibaseProperties() {
         return new LiquibaseProperties();
     }
 
-    @Bean("liquibase")
+    @Bean
     @DependsOn("dataSource")
     @Primary
     public SpringLiquibase liquibase(@Qualifier("dataSource") final DataSource dataSource,
