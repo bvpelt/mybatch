@@ -27,9 +27,9 @@ class BeschikkingsBevoegdheidH2Writer extends HibernateItemWriter<BeschikkingsBe
     private Counter writerH2Counter;
 
     @Autowired
-    public BeschikkingsBevoegdheidH2Writer(@Qualifier("sfH2") final SessionFactory sessionFactoryH2,
+    public BeschikkingsBevoegdheidH2Writer(@Qualifier("sfH2") final SessionFactory sfH2,
                                            PrometheusMeterRegistry prometheusRegistry) {
-        super.setSessionFactory(sessionFactoryH2);
+        super.setSessionFactory(sfH2);
         this.prometheusRegistry = prometheusRegistry;
         this.writerH2Counter = Counter.builder("writer")
                 //.baseUnit("gegevens")

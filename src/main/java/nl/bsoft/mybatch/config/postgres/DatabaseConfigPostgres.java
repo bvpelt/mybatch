@@ -22,7 +22,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -76,8 +75,9 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
     @Bean("liquibase")
     @DependsOn("dataSource")
     @Primary
-    public SpringLiquibase liquibase(@Qualifier("dataSource") final DataSource dataSource) {
-        return springLiquibase(dataSource, liquibaseProperties());
+    public SpringLiquibase liquibase(@Qualifier("dataSource") final DataSource dataSource,
+                                     @Qualifier("liquibaseProperties") LiquibaseProperties liquibaseProperties) {
+        return springLiquibase(dataSource, liquibaseProperties);
     }
 
     @Bean
@@ -101,12 +101,6 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
     private Properties hibernateProperties() {
         final Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-/*
-        hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "none");
-        hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-        hibernateProperties.setProperty("hibernate.show_sql", "true");
-        hibernateProperties.setProperty("hibernate.generate_statistics", "true");
- */
         return hibernateProperties;
     }
 
