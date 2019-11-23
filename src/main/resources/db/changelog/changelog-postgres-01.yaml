@@ -2,8 +2,11 @@ databaseChangeLog:
   - changeSet:
       id: 100
       author: bart
+      dbms: PostgreSQL
+      comment: Create beschikkingsbevoegdheid tabel
       changes:
         - createTable:
+            schemaName: public
             tableName: BESCHIKKINGSBEVOEGDHEID
             columns:
               - column:
@@ -28,11 +31,7 @@ databaseChangeLog:
               - column:
                   name: TOELICHTING
                   type: varchar(128)
-        - createIndex:
-            columns:
-              - column:
-                  name: CODE
-                  type: BIGINT
-            indexName: CODE_IX
-            tableName: BESCHIKKINGSBEVOEGDHEID
-            unique: false
+        - rollback:
+            dropTable:
+            - tableName: BESCHIKKINGSBEVOEGDHEID
+

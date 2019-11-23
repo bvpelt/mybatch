@@ -12,7 +12,7 @@
 
     <groupId>nl.bsoft</groupId>
     <artifactId>mybatch</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2</version>
     <name>mybatch</name>
     <description>Springboot batch processing</description>
 
@@ -69,13 +69,19 @@
         <asciidoctor.version>1.6.0</asciidoctor.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <cucumber.version>1.2.5</cucumber.version>
+        <decodecentric.version>2.1.6</decodecentric.version>
+        <dokbkx.version>2.0.17</dokbkx.version>
         <git-commit-id-plugin.version>3.0.1</git-commit-id-plugin.version>
+        <hibernate.version>5.4.9.Final</hibernate.version>
+        <hikaricp.version>3.4.1</hikaricp.version>
         <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
-        <decodecentric.version>2.1.6</decodecentric.version>
-        <dokbkx.version>2.0.17</dokbkx.version>
+        <liquibase.version>3.8.1</liquibase.version>
         <lombok.version>1.18.10</lombok.version>
+        <metrics.version>0.5.1.RELEASE</metrics.version>
+        <micrometer.version>1.3.1</micrometer.version>
+        <prom.version>0.8.0</prom.version>
         <!--
         <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
         <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
@@ -148,6 +154,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-jdbc</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -161,6 +173,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+        -->
 
         <!-- springboot admin -->
         <dependency>
@@ -181,9 +199,16 @@
         </dependency>
 
         <!-- database -->
+        <!--
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        -->
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -192,15 +217,55 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>${commons-dbcp.version}</version>
+            <version>42.2.8</version>
         </dependency>
 
-        <!-- test -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikaricp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <!-- Micormeter core dependecy -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${micrometer.version}</version>
+        </dependency>
+        <!-- Micrometer Prometheus registry -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${micrometer.version}</version>
+        </dependency>
+
+        <!--  Thymeleaf  -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <!--
+        optional, it brings userful tags to display spring security stuff
+       -->
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+        </dependency>
+
+        <!--  Optional, for bootstrap  -->
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -216,27 +281,6 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!--  do you like thymeleaf?  -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-        <!--
-        optional, it brings userful tags to display spring security stuff
-       -->
-        <dependency>
-            <groupId>org.thymeleaf.extras</groupId>
-            <artifactId>thymeleaf-extras-springsecurity5</artifactId>
-        </dependency>
-        <!--  Optional, for bootstrap  -->
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>4.3.1</version>
-        </dependency>
-
-        <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

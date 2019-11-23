@@ -2,6 +2,9 @@ package nl.bsoft.mybatch.config.security;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.actuate.context.ShutdownEndpoint;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -24,7 +27,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             throws Exception {
         auth.inMemoryAuthentication()
                 .withUser("testuser").password("12345").roles("USER").and()
-                .withUser("admin").password("geheim").roles("USER", "ADMIN");
+                .withUser("admin").password("geheim").roles("USER", "ADMIN", "ACTUATOR_ADMIN");
 
         log.info("Configured in memory security");
     }
@@ -33,6 +36,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeRequests()
+                .requestMatchers(EndpointRequest.to(ShutdownEndpoint.class))
+                .hasRole("ACTUATOR_ADMIN")
+                .requestMatchers(EndpointRequest.toAnyEndpoint())
+                .permitAll()
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                .permitAll()
                 .antMatchers("/console/**").permitAll()
                 .antMatchers("/").permitAll()
                 .and().httpBasic();

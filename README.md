@@ -13,6 +13,7 @@ In order to use this project you need to have
 # Database config
 See 
 - http://www.javaoptimum.com/how-to-configure-multiple-datasources-with-spring-boot/
+- hikari database pool https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto-database-initialization
 - https://www.springboottutorial.com/hibernate-jpa-tutorial-with-spring-boot-starter-jpa
 
 # Spring boot
@@ -22,11 +23,16 @@ See
 
 # Spring Batch
 - https://docs.spring.io/spring-batch/4.0.x/reference/html/job.html#javaConfig
+- examples of the book springboot in action https://github.com/acogoluegnes/Spring-Batch-in-Action
 
 # Spring Security
 Default wordt gebruik gemaakt van:
 - username: user
 - password generated
+
+# Spring Actuator
+- https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/actuator-api/html/
+
 # Git plugin
 To make it work on ubuntu use
 ```bash
@@ -44,6 +50,12 @@ org.eclipse.jgit.api.errors.TransportException: git@github.com:bvpelt/mybatch.gi
     at pl.project13.maven.git.JGitProvider.getAheadBehind (JGitProvider.java:339)
     at pl.project13.maven.git.GitDataProvider.lambda$loadGitData$17 (GitDataProvider.java:174)
 ```
+# Using JobLauncher
+The application has a buildin general interface to launch a job, the joblauncher.
+Syntax: http://localhost:8080/joblauncher?job=<name>&(<paramname>=<paramvalue)*
+
+Example:
+http://localhost:8080/joblauncher?job=fileToPostgresLimitJob&fileName=BeschikkingF01.csv
 
 # Logback
 - patterns https://logback.qos.ch/manual/layouts.html
@@ -78,3 +90,21 @@ See
 
 # Profiling
 - https://www.jetbrains.com/help/idea/cpu-profiler.html
+
+# Actuator
+- https://www.callicoder.com/spring-boot-actuator/
+
+see [grafana.md](grafana.md)
+
+Customizing 
+- https://docs.spring.io/spring-metrics/docs/current/public/prometheus
+- https://blog.autsoft.hu/defining-custom-metrics-in-a-spring-boot-application-using-micrometer/
+- http://micrometer.io/docs/concepts
+- https://metrics.dropwizard.io/3.1.0/manual/servlets/
+
+```bash
+grep "15 Step after chunk - job"  /tmp/sample-boot-application.log | sed -e 's/.\{180\}//'
+```
+
+
+

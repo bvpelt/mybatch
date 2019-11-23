@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -41,6 +43,32 @@ class GitProperties implements ResourceLoaderAware {
     public static String TAGS = "git.tags";
     public static String TOTAL_COMMIT_COUNT = "git.total.commit.count";
 
+    public static List<String> GIT_PROPERTIES = Arrays.asList(
+            BRANCH,
+            BUILD_TIME,
+            BUILD_USER_EMAIL,
+            BUILD_USER_NAME,
+            BUILD_VERSION,
+            CLOSEST_TAG_COMMIT_COUNT,
+            CLOSEST_TAG_NAME,
+            COMMIT_ID,
+            COMMIT_ID_ABBREV,
+            COMMIT_ID_DESCRIBE,
+            COMMIT_ID_DESCRIBE_SHORT,
+            COMMIT_MESSAGE_FULL,
+            COMMIT_MESSAGE_SHORT,
+            COMMIT_TIME,
+            COMMIT_USER_EMAIL,
+            COMMIT_USER_NAME,
+            DIRTY,
+            HOST,
+            LOCAL_BRANCH_AHEAD,
+            LOCAL_BRANCH_BEHIND,
+            REMOTE_ORIGIN_URL,
+            TAGS,
+            TOTAL_COMMIT_COUNT
+    );
+
     private ResourceLoader resourceLoader = new DefaultResourceLoader(getClass().getClassLoader());
     private Properties properties = null;
 
@@ -64,6 +92,12 @@ class GitProperties implements ResourceLoaderAware {
             log.error("Cannot read properties: {}", e);
         }
         return properties;
+    }
+
+    public String getPropertie(final String propertyName) {
+        String result = "";
+        result = (String) this.properties.get(propertyName);
+        return result;
     }
 
     // git.branch=skippolicy

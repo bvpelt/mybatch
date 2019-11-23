@@ -1,5 +1,6 @@
 package nl.bsoft.mybatch.config;
 
+import com.zaxxer.hikari.HikariConfig;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
@@ -7,9 +8,9 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import javax.sql.DataSource;
 
 @Slf4j
-public class DatabaseConfig {
+public abstract class DatabaseConfig extends HikariConfig {
 
-    public SpringLiquibase springLiquibase(DataSource dataSource, LiquibaseProperties properties) {
+    protected static SpringLiquibase springLiquibase(final DataSource dataSource, final LiquibaseProperties properties) {
         SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(dataSource);
         liquibase.setChangeLog(properties.getChangeLog());
@@ -22,4 +23,5 @@ public class DatabaseConfig {
         liquibase.setRollbackFile(properties.getRollbackFile());
         return liquibase;
     }
+
 }

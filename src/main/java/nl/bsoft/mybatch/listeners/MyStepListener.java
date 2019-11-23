@@ -1,19 +1,16 @@
 package nl.bsoft.mybatch.listeners;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.ExitStatus;
 import nl.bsoft.mybatch.config.StepListenerConfig;
-import org.springframework.batch.core.JobParameter;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepListener;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.annotation.*;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -35,10 +32,38 @@ class MyStepListener<INPUT, OUTPUT> implements StepListener {
 
     private StepListenerConfig stepListenerConfig;
 
+    private PrometheusMeterRegistry registry;
+
+    private Counter writeCounter;
+    private Counter readCounter;
+    private Counter commitCounter;
+    private Counter rollbackCounter;
+
     @Autowired
-    public MyStepListener(final StepListenerConfig stepListenerConfig)
-    {
+    public MyStepListener(final StepListenerConfig stepListenerConfig,
+                          final PrometheusMeterRegistry registry) {
         this.stepListenerConfig = stepListenerConfig;
+        this.registry = registry;
+        writeCounter = Counter.builder("writer")
+                .baseUnit("mybatch")
+                .description("Counter for written records")
+                .tags("aantal", "writer")
+                .register(registry);
+        readCounter = Counter.builder("writer")
+                .baseUnit("mybatch")
+                .description("Counter for written records")
+                .tags("aantal", "reader")
+                .register(registry);
+        commitCounter = Counter.builder("writer")
+                .baseUnit("mybatch")
+                .description("Counter for written records")
+                .tags("aantal", "commit")
+                .register(registry);
+        rollbackCounter = Counter.builder("writer")
+                .baseUnit("mybatch")
+                .description("Counter for written records")
+                .tags("aantal", "rollback")
+                .register(registry);
     }
 
     @BeforeStep
@@ -163,6 +188,28 @@ class MyStepListener<INPUT, OUTPUT> implements StepListener {
     public void afterChunk(final ChunkContext context) {
         if (stepListenerConfig.isLogAfterChunk()) {
             log.debug("15 Step after chunck, is complete: {}", context.isComplete());
+
+            StepContext stepContext = context.getStepContext();
+            StepExecution stepExecution = stepContext.getStepExecution();
+            ExitStatus exitStatus = stepExecution.getExitStatus();
+            BatchStatus batchStatus = stepExecution.getStatus();
+            String stepName = stepExecution.getStepName();
+            JobExecution jobExecution = stepExecution.getJobExecution();
+            String jobName = jobExecution.getJobInstance().getJobName();
+            int commitCount = stepExecution.getCommitCount();
+            int rollbackCount = stepExecution.getRollbackCount();
+            int writeCount = stepExecution.getWriteCount();
+            int readCount = stepExecution.getReadCount();
+
+            writeCounter.increment(writeCount);
+            readCounter.increment(readCount);
+            commitCounter.increment(commitCount);
+            rollbackCounter.increment(rollbackCount);
+
+            log.debug("15 Step after chunk - job: {} step: {} exitstatus: {}, batchstatus: {}, commits: {}, rollbacks: {}, reads: {}, writes: {}, writecounter: {}, readcounter: {}, commitcounter: {}, rollbackcounter: {}",
+                    jobName, stepName, exitStatus.toString(), batchStatus.toString(), commitCount, rollbackCount, readCount, writeCount, writeCounter.count(), readCounter.count(), commitCounter.count(), rollbackCounter.count());
+
+
         }
     }
 
@@ -170,6 +217,27 @@ class MyStepListener<INPUT, OUTPUT> implements StepListener {
     public void afterChunkError(final ChunkContext context) {
         if (stepListenerConfig.isLogChunkError()) {
             log.debug("16 Step after chunck error, is complete: {}", context.isComplete());
+
+            StepContext stepContext = context.getStepContext();
+            StepExecution stepExecution = stepContext.getStepExecution();
+            ExitStatus exitStatus = stepExecution.getExitStatus();
+            BatchStatus batchStatus = stepExecution.getStatus();
+            String stepName = stepExecution.getStepName();
+            JobExecution jobExecution = stepExecution.getJobExecution();
+            String jobName = jobExecution.getJobInstance().getJobName();
+            int commitCount = stepExecution.getCommitCount();
+            int rollbackCount = stepExecution.getRollbackCount();
+            int writeCount = stepExecution.getWriteCount();
+            int readCount = stepExecution.getReadCount();
+
+            writeCounter.increment(writeCount);
+            readCounter.increment(readCount);
+            commitCounter.increment(commitCount);
+            rollbackCounter.increment(rollbackCount);
+
+            log.debug("15 Step info  chunk - job: {} step: {} exitstatus: {}, batchstatus: {}, commits: {}, rollbacks: {}, reads: {}, writes: {}, writecounter: {}, readcounter: {}, commitcounter: {}, rollbackcounter: {}",
+                    jobName, stepName, exitStatus.toString(), batchStatus.toString(), commitCount, rollbackCount, readCount, writeCount, writeCounter.count(), readCounter.count(), commitCounter.count(), rollbackCounter.count());
+
         }
     }
 

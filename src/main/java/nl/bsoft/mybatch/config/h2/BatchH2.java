@@ -1,5 +1,6 @@
 package nl.bsoft.mybatch.config.h2;
 
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import nl.bsoft.mybatch.config.MyJobListener;
@@ -22,6 +23,7 @@ public @Data
 class BatchH2 {
     private final int DEFAULT_CHUNKSIZE = 10;
     private int chunkSize;
+    private PrometheusMeterRegistry prometheusRegistry;
 
     @Autowired
     private JobBuilderFactory jobBuilder;
@@ -29,8 +31,10 @@ class BatchH2 {
     @Autowired
     private StepBuilderFactory stepBuilder;
 
-    public BatchH2() {
+    @Autowired
+    public BatchH2(PrometheusMeterRegistry prometheusRegistry) {
         this.chunkSize = DEFAULT_CHUNKSIZE;
+        this.prometheusRegistry = prometheusRegistry;
     }
 
     @Bean
