@@ -47,7 +47,6 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
         return new DataSourceProperties();
     }
 
-//    @Bean(name = "dataSourcePg")
     @Bean
     @Primary
     @ConfigurationProperties("postgres.datasource.configuration")
@@ -65,7 +64,6 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
 
     @Bean(name = "sfPostgres")
     public SessionFactory sfPostgres(@Qualifier("entityManagerFactoryPg") final LocalContainerEntityManagerFactoryBean entityManagerFactoryPg) {
-        //return entityManagerFactoryPg().getObject().unwrap(SessionFactory.class);
         return Objects.requireNonNull(entityManagerFactoryPg.getObject()).unwrap(SessionFactory.class);
     }
 
@@ -84,23 +82,19 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryPg(@Qualifier("dataSource") final DataSource dataSource) {
-
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setJpaProperties(hibernateProperties());
         factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.postgres.repo", "nl.bsoft.mybatch.database");
         factoryBean.setPersistenceUnitName("postgres-unit");
-
         return factoryBean;
     }
 
     @Bean
     public PlatformTransactionManager transactionManagerPg(@Qualifier("dataSource") final DataSource dataSource) {
         log.debug("Get primary transactionManager");
-        //return new JpaTransactionManager(entityManagerFactoryPg().getObject());
         return new JpaTransactionManager(entityManagerFactoryPg(dataSource).getObject());
     }
 
@@ -112,7 +106,6 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
         hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
         hibernateProperties.setProperty("hibernate.show_sql", "true");
         hibernateProperties.setProperty("hibernate.generate_statistics", "true");
-
  */
         return hibernateProperties;
     }

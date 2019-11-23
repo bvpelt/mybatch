@@ -22,6 +22,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.Properties;
 
 @Slf4j
@@ -59,14 +60,14 @@ public class DatabaseConfigH2 extends DatabaseConfig {
     }
 
     @Bean(name = "sfH2")
-    public SessionFactory sessionFactoryH2() throws SQLException {
-        return entityManagerFactoryH2().getObject().unwrap(SessionFactory.class);
+    public SessionFactory sessionFactoryH2(@Qualifier("entityManagerFactoryH2") final LocalContainerEntityManagerFactoryBean entityManagerFactoryH2) {
+        //return entityManagerFactoryH2().getObject().unwrap(SessionFactory.class);
+        return Objects.requireNonNull(entityManagerFactoryH2.getObject()).unwrap(SessionFactory.class);
     }
 
     @Bean("liquibasePropertiesH2")
     @ConfigurationProperties(prefix = "datasource.h2.h2liquibase")
     public LiquibaseProperties liquibasePropertiesH2() {
-
         return new LiquibaseProperties();
     }
 
@@ -77,12 +78,10 @@ public class DatabaseConfigH2 extends DatabaseConfig {
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryH2() throws SQLException {
-
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryH2(@Qualifier("dataSourceH2") final DataSource dataSourceH2) throws SQLException {
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
-        factoryBean.setDataSource(dataSourceH2());
+        factoryBean.setDataSource(dataSourceH2);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setJpaProperties(hibernateProperties());
         factoryBean.setPackagesToScan("nl.bsoft.mybatch.config.h2.repo", "nl.bsoft.mybatch.database");
@@ -92,8 +91,9 @@ public class DatabaseConfigH2 extends DatabaseConfig {
     }
 
     @Bean
-    public PlatformTransactionManager transactionManagerH2() throws SQLException {
-        return new JpaTransactionManager(entityManagerFactoryH2().getObject());
+    public PlatformTransactionManager transactionManagerH2(@Qualifier("dataSourceH2") final DataSource dataSourceH2) throws SQLException {
+        //return new JpaTransactionManager(entityManagerFactoryH2().getObject());
+        return new JpaTransactionManager(entityManagerFactoryH2(dataSourceH2).getObject());
     }
 
     private Properties hibernateProperties() {
