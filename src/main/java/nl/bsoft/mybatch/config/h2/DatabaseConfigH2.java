@@ -45,7 +45,7 @@ public class DatabaseConfigH2 extends DatabaseConfig {
 
     @Bean(name = "dataSourceH2")
     @ConfigurationProperties("spring.datasource.h2.configuration")
-    public DataSource dataSourceH2(final DataSourceProperties h2DataSourceProperties) {
+    public DataSource dataSourceH2(@Qualifier("h2DataSourceProperties") final DataSourceProperties h2DataSourceProperties) {
         log.info("datasourceh2 config: {}", h2DataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
         return h2DataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }

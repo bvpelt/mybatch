@@ -47,7 +47,7 @@ public class DatabaseConfigPostgres extends DatabaseConfig {
     @Bean
     @Primary
     @ConfigurationProperties("spring.datasource.configuration")
-    public DataSource dataSource(final DataSourceProperties pgDataSourceProperties) {
+    public DataSource dataSource(@Qualifier("pgDataSourceProperties") final DataSourceProperties pgDataSourceProperties) {
         log.info("datasource config: {}", pgDataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build().toString());
         return pgDataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
